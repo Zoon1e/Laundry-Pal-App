@@ -1,0 +1,290 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block page_title %}Activity Logs{% endblock %}
+{% block page_subtitle %}Monitor admin actions and system activity{% endblock %}
+
+{% block content %}
+<!-- Filters -->
+<div class="admin-filters">
+    <h6 class="filter-title">
+        <i class="fas fa-filter me-2"></i>Filter Activity Logs
+    </h6>
+    <form method="get" class="row g-3">
+        <div class="col-md-3">
+            <label class="admin-form-label">Action Type</label>
+            <select name="action" class="form-select admin-form-control">
+                <option value="">All Actions</option>
+                {% for value, label in action_choices %}
+                    <option value="{{ value }}" {% if current_filters.action == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="admin-form-label">Admin User</label>
+            <select name="admin" class="form-select admin-form-control">
+                <option value="">All Admins</option>
+                {% for admin_user in admin_users %}
+                    <option value="{{ admin_user }}" {% if current_filters.admin == admin_user %}selected{% endif %}>
+                        {{ admin_user }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="admin-form-label">Search</label>
+            <input type="text" name="search" class="form-control admin-form-control" 
+                   placeholder="Search descriptions..." value="{{ current_filters.search }}">
+        </div>
+        <div class="col-md-3">
+            <label class="admin-form-label">&nbsp;</label>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-admin-primary">
+                    <i class="fas fa-search me-2"></i>Filter
+                </button>
+                <a href="{% url 'admin_panel:logs' %}" class="btn btn-admin-secondary">
+                    <i class="fas fa-times me-2"></i>Clear
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Activity Logs -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h5 class="admin-card-title">
+            <i class="fas fa-history me-2"></i>Recent Activity
+        </h5>
+        <div class="card-actions">
+            <button class="btn btn-sm btn-outline-primary" onclick="location.reload()">
+                <i class="fas fa-sync-alt me-2"></i>Refresh
+            </button>
+        </div>
+    </div>
+    <div class="admin-card-body p-0">
+        {% if page_obj %}
+            <div class="activity-timeline">
+                {% for log in page_obj %}
+                    <div class="activity-item">
+                        <div class="activity-icon action-{{ log.action_type }}">
+                            <i class="fas fa-{% if log.action_type == 'login' %}sign-in-alt{% elif log.action_type == 'logout' %}sign-out-alt{% elif log.action_type == 'order_update' %}box{% elif log.action_type == 'price_change' %}dollar-sign{% elif log.action_type == 'user_action' %}user{% else %}cog{% endif %}"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-header">
+                                <div class="activity-title">
+                                    <strong>{{ log.get_action_type_display }}</strong>
+                                    <span class="activity-user">by {{ log.admin_user.first_name|default:log.admin_user.username }}</span>
+                                </div>
+                                <div class="activity-time">
+                                    <i class="fas fa-clock me-1"></i>
+                                    {{ log.timestamp|timesince }} ago
+                                    <small class="text-muted">({{ log.timestamp|date:"M d, Y g:i A" }})</small>
+                                </div>
+                            </div>
+                            <div class="activity-description">
+                                {{ log.description }}
+                            </div>
+                            <div class="activity-meta">
+                                {% if log.target_model and log.target_id %}
+                                    <span class="meta-item">
+                                        <i class="fas fa-tag me-1"></i>
+                                        Target: {{ log.target_model }} #{{ log.target_id }}
+                                    </span>
+                                {% endif %}
+                                {% if log.ip_address %}
+                                    <span class="meta-item">
+                                        <i class="fas fa-globe me-1"></i>
+                                        IP: {{ log.ip_address }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="admin-empty-state">
+                <i class="fas fa-history"></i>
+                <h5>No Activity Logs Found</h5>
+                <p>No activity logs match your current filters.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+    <div class="admin-pagination mt-4">
+        <nav>
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if current_filters.action %}&action={{ current_filters.action }}{% endif %}{% if current_filters.admin %}&admin={{ current_filters.admin }}{% endif %}{% if current_filters.search %}&search={{ current_filters.search }}{% endif %}">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if current_filters.action %}&action={{ current_filters.action }}{% endif %}{% if current_filters.admin %}&admin={{ current_filters.admin }}{% endif %}{% if current_filters.search %}&search={{ current_filters.search }}{% endif %}">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if current_filters.action %}&action={{ current_filters.action }}{% endif %}{% if current_filters.admin %}&admin={{ current_filters.admin }}{% endif %}{% if current_filters.search %}&search={{ current_filters.search }}{% endif %}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if current_filters.action %}&action={{ current_filters.action }}{% endif %}{% if current_filters.admin %}&admin={{ current_filters.admin }}{% endif %}{% if current_filters.search %}&search={{ current_filters.search }}{% endif %}">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if current_filters.action %}&action={{ current_filters.action }}{% endif %}{% if current_filters.admin %}&admin={{ current_filters.admin }}{% endif %}{% if current_filters.search %}&search={{ current_filters.search }}{% endif %}">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.activity-timeline {
+    padding: 1rem 0;
+}
+
+.activity-item {
+    display: flex;
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--admin-border);
+    transition: background-color 0.3s ease;
+}
+
+.activity-item:hover {
+    background-color: rgba(37, 99, 235, 0.02);
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+    color: white;
+    font-size: 0.9rem;
+}
+
+.activity-icon.action-login {
+    background: linear-gradient(135deg, #10b981, #34d399);
+}
+
+.activity-icon.action-logout {
+    background: linear-gradient(135deg, #f59e0b, #fbbf24);
+}
+
+.activity-icon.action-order_update {
+    background: linear-gradient(135deg, #2563eb, #3b82f6);
+}
+
+.activity-icon.action-price_change {
+    background: linear-gradient(135deg, #059669, #10b981);
+}
+
+.activity-icon.action-user_action {
+    background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+}
+
+.activity-icon.action-settings_change {
+    background: linear-gradient(135deg, #64748b, #94a3b8);
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.activity-title {
+    font-size: 1rem;
+}
+
+.activity-user {
+    color: var(--admin-secondary);
+    font-weight: normal;
+    margin-left: 0.5rem;
+}
+
+.activity-time {
+    color: var(--admin-secondary);
+    font-size: 0.85rem;
+    text-align: right;
+}
+
+.activity-description {
+    color: var(--admin-dark);
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+}
+
+.activity-meta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.meta-item {
+    color: var(--admin-secondary);
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+}
+
+.meta-item i {
+    color: var(--admin-primary);
+}
+
+@media (max-width: 768px) {
+    .activity-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .activity-time {
+        text-align: left;
+        margin-top: 0.25rem;
+    }
+    
+    .activity-meta {
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+}
+</style>
+{% endblock %}

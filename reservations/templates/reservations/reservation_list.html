@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Reservations - Laundry Pal{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/reservation-list.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="reservations-container">
+    <!-- Header Section -->
+    <div class="reservations-header">
+        <div class="header-content">
+            <div class="header-text">
+                <div class="header-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div>
+                    <h1 class="reservations-title">My Reservations</h1>
+                    <p class="reservations-subtitle">Manage your laundry pickup and delivery schedule</p>
+                </div>
+            </div>
+            <a href="{% url 'reservations:reservation_create' %}" class="btn-new-reservation">
+                <i class="fas fa-plus"></i>
+                <span>New Reservation</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card stat-pending">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{ pending_count }}</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+            </div>
+            <div class="stat-card stat-confirmed">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{ confirmed_count }}</div>
+                    <div class="stat-label">Confirmed</div>
+                </div>
+            </div>
+            <div class="stat-card stat-progress">
+                <div class="stat-icon">
+                    <i class="fas fa-spinner"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{ in_progress_count }}</div>
+                    <div class="stat-label">In Progress</div>
+                </div>
+            </div>
+            <div class="stat-card stat-completed">
+                <div class="stat-icon">
+                    <i class="fas fa-check-double"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{ completed_count }}</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reservations List -->
+    {% if reservations %}
+        <div class="reservations-grid">
+            {% for reservation in reservations %}
+                <div class="reservation-card">
+                    <div class="reservation-header">
+                        <div class="reservation-info">
+                            <div class="reservation-number">Reservation #{{ reservation.pk }}</div>
+                            <div class="reservation-date">{{ reservation.created_at|date:"M d, Y" }}</div>
+                        </div>
+                        <div class="reservation-badges">
+                            <span class="status-badge status-{{ reservation.status }}">
+                                {{ reservation.get_status_display }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    {% if user.is_staff or user.is_superuser %}
+                    <!-- Customer Information (Admin Only) -->
+                    <div class="customer-info">
+                        <div class="customer-details">
+                            <div class="customer-name">
+                                <i class="fas fa-user me-2"></i>
+                                <strong>{{ reservation.user.first_name|default:reservation.user.username }}{% if reservation.user.last_name %} {{ reservation.user.last_name }}{% endif %}</strong>
+                            </div>
+                            <div class="customer-email">
+                                <i class="fas fa-envelope me-2"></i>
+                                {{ reservation.user.email }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="reservation-body">
+                        <div class="datetime-section">
+                            <div class="datetime-item">
+                                <div class="datetime-icon pickup">
+                                    <i class="fas fa-arrow-up"></i>
+                                </div>
+                                <div class="datetime-content">
+                                    <div class="datetime-label">Pickup</div>
+                                    <div class="datetime-value">{{ reservation.pickup_datetime|date:"M d, Y" }}</div>
+                                    <div class="datetime-time">{{ reservation.pickup_datetime|time:"g:i A" }}</div>
+                                </div>
+                            </div>
+                            <div class="datetime-item">
+                                <div class="datetime-icon delivery">
+                                    <i class="fas fa-arrow-down"></i>
+                                </div>
+                                <div class="datetime-content">
+                                    <div class="datetime-label">Delivery</div>
+                                    <div class="datetime-value">{{ reservation.delivery_datetime|date:"M d, Y" }}</div>
+                                    <div class="datetime-time">{{ reservation.delivery_datetime|time:"g:i A" }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="reservation-details">
+                            <div class="detail-item">
+                                <div class="detail-icon">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div class="detail-content">
+                                    <div class="detail-label">Address</div>
+                                    <div class="detail-value">{{ reservation.address }}</div>
+                                </div>
+                            </div>
+
+                            {% if reservation.service_type %}
+                            <div class="detail-item">
+                                <div class="detail-icon">
+                                    <i class="fas fa-tshirt"></i>
+                                </div>
+                                <div class="detail-content">
+                                    <div class="detail-label">Service</div>
+                                    <div class="detail-value">{{ reservation.service_type.name }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if reservation.estimated_cost %}
+                            <div class="detail-item">
+                                <div class="detail-icon">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </div>
+                                <div class="detail-content">
+                                    <div class="detail-label">Estimated Cost</div>
+                                    <div class="detail-value cost">₱{{ reservation.estimated_cost }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="reservation-footer">
+                        <a href="{% url 'reservations:reservation_detail' reservation.pk %}" class="btn-view">
+                            <i class="fas fa-eye"></i>
+                            <span>View Details</span>
+                        </a>
+                        {% if reservation.status == 'pending' %}
+                        <a href="{% url 'reservations:reservation_update' reservation.pk %}" class="btn-edit">
+                            <i class="fas fa-edit"></i>
+                            <span>Edit</span>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <nav aria-label="Reservations pagination" class="mt-5">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1">&laquo; First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                {% endif %}
+
+                <li class="page-item active">
+                    <span class="page-link">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </span>
+                </li>
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+    {% else %}
+        <!-- Empty State -->
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-calendar-plus"></i>
+            </div>
+            <h3 class="empty-title">No Reservations Yet</h3>
+            <p class="empty-subtitle">Schedule your first laundry pickup to get started!</p>
+            <a href="{% url 'reservations:reservation_create' %}" class="btn-new-reservation">
+                <i class="fas fa-plus"></i>
+                <span>Create Your First Reservation</span>
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,269 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block page_title %}Dashboard{% endblock %}
+{% block page_subtitle %}Overview of your laundry service performance{% endblock %}
+
+{% block content %}
+<!-- Statistics Cards -->
+<div class="row g-4 mb-5">
+    <div class="col-xl-3 col-md-6">
+        <div class="admin-stat-card stat-primary">
+            <div class="stat-icon">
+                <i class="fas fa-box"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-number">{{ total_orders }}</h3>
+                <p class="stat-label">Total Orders</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="admin-stat-card stat-warning">
+            <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-number">{{ pending_orders }}</h3>
+                <p class="stat-label">Pending Orders</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="admin-stat-card stat-info">
+            <div class="stat-icon">
+                <i class="fas fa-spinner"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-number">{{ active_orders }}</h3>
+                <p class="stat-label">Active Orders</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6">
+        <div class="admin-stat-card stat-success">
+            <div class="stat-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-number">{{ completed_orders }}</h3>
+                <p class="stat-label">Completed Orders</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Secondary Stats -->
+<div class="row g-4 mb-5">
+    <div class="col-xl-4 col-md-6">
+        <div class="admin-stat-card stat-secondary">
+            <div class="stat-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-number">{{ total_users }}</h3>
+                <p class="stat-label">Total Customers</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-4 col-md-6">
+        <div class="admin-stat-card stat-secondary">
+            <div class="stat-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-number">{{ total_reservations }}</h3>
+                <p class="stat-label">Total Reservations</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-4 col-md-6">
+        <div class="admin-stat-card stat-revenue">
+            <div class="stat-icon">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-number">${{ total_revenue|floatformat:2 }}</h3>
+                <p class="stat-label">Total Revenue</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts and Recent Activity -->
+<div class="row g-4">
+    <!-- Order Status Distribution Chart -->
+    <div class="col-lg-6">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h5 class="admin-card-title">
+                    <i class="fas fa-chart-pie me-2"></i>Order Status Distribution
+                </h5>
+            </div>
+            <div class="admin-card-body">
+                <canvas id="statusChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Orders -->
+    <div class="col-lg-6">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h5 class="admin-card-title">
+                    <i class="fas fa-history me-2"></i>Recent Orders
+                </h5>
+                <a href="{% url 'admin_panel:orders' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="admin-card-body">
+                {% if recent_orders %}
+                    <div class="recent-orders-list">
+                        {% for order in recent_orders %}
+                            <div class="recent-order-item">
+                                <div class="order-info">
+                                    <div class="order-number">
+                                        <strong>#{{ order.order_number }}</strong>
+                                    </div>
+                                    <div class="order-customer">
+                                        {{ order.user.first_name|default:order.user.username }}
+                                    </div>
+                                    <div class="order-date">
+                                        {{ order.created_at|date:"M d, Y g:i A" }}
+                                    </div>
+                                </div>
+                                <div class="order-status">
+                                    <span class="badge bg-{{ order.get_status_color }}">
+                                        {{ order.get_status_display }}
+                                    </span>
+                                </div>
+                                <div class="order-amount">
+                                    <strong>${{ order.total_cost|floatformat:2 }}</strong>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                        <p>No recent orders found</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row g-4 mt-4">
+    <div class="col-12">
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <h5 class="admin-card-title">
+                    <i class="fas fa-bolt me-2"></i>Quick Actions
+                </h5>
+            </div>
+            <div class="admin-card-body">
+                <div class="row g-3">
+                    <div class="col-lg-3 col-md-6">
+                        <a href="{% url 'admin_panel:pending_orders' %}" class="quick-action-btn">
+                            <i class="fas fa-clock"></i>
+                            <span>Pending Orders</span>
+                            {% if pending_orders > 0 %}
+                                <div class="action-badge">{{ pending_orders }}</div>
+                            {% endif %}
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <a href="{% url 'admin_panel:orders' %}" class="quick-action-btn">
+                            <i class="fas fa-box"></i>
+                            <span>Manage All Orders</span>
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <a href="{% url 'admin_panel:pricing' %}" class="quick-action-btn">
+                            <i class="fas fa-dollar-sign"></i>
+                            <span>Update Pricing</span>
+                        </a>
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <a href="{% url 'admin_panel:users' %}" class="quick-action-btn">
+                            <i class="fas fa-users"></i>
+                            <span>Manage Users</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Order Status Distribution Chart
+const ctx = document.getElementById('statusChart').getContext('2d');
+const statusData = [
+    {% for status in status_distribution %}
+        {
+            label: '{{ status.status|title }}',
+            value: {{ status.count }},
+            color: getStatusColor('{{ status.status }}')
+        }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+
+function getStatusColor(status) {
+    const colors = {
+        'pending': '#6c757d',
+        'confirmed': '#0dcaf0',
+        'picked_up': '#0d6efd',
+        'washing': '#0d6efd',
+        'drying': '#0d6efd',
+        'folding': '#ffc107',
+        'ready': '#198754',
+        'out_for_delivery': '#ffc107',
+        'delivered': '#198754'
+    };
+    return colors[status] || '#6c757d';
+}
+
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: statusData.map(item => item.label),
+        datasets: [{
+            data: statusData.map(item => item.value),
+            backgroundColor: statusData.map(item => item.color),
+            borderWidth: 2,
+            borderColor: '#ffffff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 20,
+                    usePointStyle: true,
+                    font: {
+                        family: 'Outfit',
+                        size: 12
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Auto-refresh dashboard every 30 seconds
+setInterval(function() {
+    location.reload();
+}, 30000);
+</script>
+{% endblock %}

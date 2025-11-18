@@ -1,0 +1,249 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order Map - Laundry Pal{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tF/miZyoHS5obTRR9BMY="
+      crossorigin=""/>
+<link rel="stylesheet" href="{% static 'css/map-styles.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="display-6 fw-bold text-primary mb-0">Order Map</h2>
+    </div>
+
+    <div class="map-container">
+        <div id="map"></div>
+        <div class="map-overlay">
+            <h6 class="fw-bold mb-2">Order Status Legend</h6>
+            <div class="d-flex flex-wrap gap-2">
+                <span class="badge bg-primary">Pending</span>
+                <span class="badge bg-info">Processing</span>
+                <span class="badge bg-warning">Washing</span>
+                <span class="badge bg-success">Ready for Pickup</span>
+                <span class="badge bg-secondary">Delivered</span>
+                <span class="badge bg-danger">Cancelled</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4 d-none" id="orderList">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Orders in This Area</h5>
+                </div>
+                <div class="card-body" id="orderListContent">
+                    <!-- Orders will be loaded here via JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+<script>
+// Initialize the map when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Coordinates for Naval, Biliran, Philippines
+    const NAVAL_CENTER = [11.5833, 124.4667];
+    
+    // Create map centered on Naval, Biliran
+    const map = L.map('map').setView(NAVAL_CENTER, 14);
+    
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19,
+    }).addTo(map);
+    
+    // Add scale control
+    L.control.scale().addTo(map);
+    
+    // Add geolocation control
+    L.control.locate({
+        position: 'topleft',
+        drawCircle: true,
+        flyTo: true,
+        setView: 'untilPanOrZoom',
+        keepCurrentZoomLevel: true,
+        markerStyle: {
+            weight: 1,
+            opacity: 0.8,
+            fillOpacity: 0.8
+        },
+        circleStyle: {
+            weight: 1,
+            clickable: false
+        }
+    }).addTo(map);
+    
+    // Add markers for each order
+    const orders = [
+        {% for order in orders %}
+        {
+            id: '{{ order.id|escapejs }}',
+            number: '{{ order.order_number|escapejs }}',
+            status: '{{ order.status|escapejs }}',
+            address: '{{ order.address|default:"Naval, Biliran, Philippines"|escapejs }}',
+            lat: {{ order.latitude|default:0 }},
+            lng: {{ order.longitude|default:0 }},
+            created: '{{ order.created_at|date:"M d, Y"|escapejs }}',
+            total: '{{ order.total_cost|default:"0.00"|escapejs }}',
+            items: [
+                {% for item in order.items.all %}
+                '{{ item.service.name|escapejs }} ({{ item.quantity }})'{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ]
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    
+    // Debug: Log orders to console
+    console.log('Loaded orders:', orders);
+    
+    // Helper function to get marker color based on status
+    function getMarkerColor(status) {
+        if (!status) return '#6c757d'; // Default gray if status is undefined
+        
+        const statusMap = {
+            'pending': '#0d6efd',    // blue
+            'processing': '#0dcaf0',  // cyan
+            'washing': '#ffc107',     // yellow
+            'ready': '#198754',       // green
+            'delivered': '#6c757d',   // gray
+            'cancelled': '#dc3545'    // red
+        };
+        return statusMap[status.toLowerCase()] || '#6c757d';
+    }
+    
+    // Helper function to get icon based on status
+    function getStatusIcon(status) {
+        if (!status) return 'fa-question-circle'; // Default icon if status is undefined
+        
+        const iconMap = {
+            'pending': 'fa-hourglass',
+            'processing': 'fa-spinner fa-spin',
+            'washing': 'fa-soap',
+            'ready': 'fa-check-circle',
+            'delivered': 'fa-check-double',
+            'cancelled': 'fa-times-circle'
+        };
+        return iconMap[status.toLowerCase()] || 'fa-question-circle';
+    }
+    
+    // Add markers to the map
+    orders.forEach(order => {
+        // Skip if no coordinates
+        if (!order.lat || !order.lng) return;
+        
+        // Create a custom icon
+        const icon = L.divIcon({
+            html: `<div class="map-marker" style="background-color: ${getMarkerColor(order.status)}">
+                     <i class="fas ${getStatusIcon(order.status)}"></i>
+                   </div>`,
+            className: 'custom-marker',
+            iconSize: [30, 30],
+            iconAnchor: [15, 30],
+            popupAnchor: [0, -30]
+        });
+        
+        // Create marker with popup
+        const marker = L.marker([order.lat, order.lng], { icon: icon }).addTo(map);
+        
+        // Create popup content
+        const popupContent = `
+            <div class="map-popup">
+                <h6 class="fw-bold mb-2">Order #${order.number}</h6>
+                <p class="mb-1"><i class="fas fa-${getStatusIcon(order.status).replace('fa-', '')} me-1"></i> 
+                   <span class="text-capitalize">${order.status}</span></p>
+                <p class="mb-1"><i class="fas fa-map-marker-alt me-1"></i> ${order.address}</p>
+                <p class="mb-1"><i class="fas fa-calendar-alt me-1"></i> ${order.created}</p>
+                <p class="mb-1"><i class="fas fa-tags me-1"></i> ₱${order.total}</p>
+                <div class="d-grid mt-2">
+                    <a href="/orders/${order.id}/" class="btn btn-sm btn-outline-primary">
+                        View Details <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        `;
+        
+        // Bind popup to marker
+        marker.bindPopup(popupContent);
+    });
+    
+    // Fit map to bounds of all markers if there are any
+    if (orders.length > 0) {
+        const bounds = L.latLngBounds(orders
+            .filter(order => order.lat && order.lng)
+            .map(order => [order.lat, order.lng]));
+        map.fitBounds(bounds, { padding: [50, 50] });
+    }
+    
+    // Add click handler to show orders in the current view
+    map.on('moveend', updateVisibleOrders);
+    
+    function updateVisibleOrders() {
+        const bounds = map.getBounds();
+        const visibleOrders = orders.filter(order => 
+            order.lat && order.lng && bounds.contains([order.lat, order.lng])
+        );
+        
+        const orderList = document.getElementById('orderList');
+        const orderListContent = document.getElementById('orderListContent');
+        
+        if (visibleOrders.length > 0) {
+            orderList.classList.remove('d-none');
+            orderListContent.innerHTML = `
+                <div class="row g-3">
+                    ${visibleOrders.map(order => `
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title d-flex justify-content-between align-items-center">
+                                        Order #${order.number}
+                                        <span class="badge bg-${order.status === 'pending' ? 'primary' : 
+                                            order.status === 'processing' ? 'info' : 
+                                            order.status === 'washing' ? 'warning' : 
+                                            order.status === 'ready' ? 'success' : 
+                                            order.status === 'delivered' ? 'secondary' : 'danger'}">
+                                            ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                                        </span>
+                                    </h6>
+                                    <p class="card-text text-muted small mb-2">
+                                        <i class="fas fa-calendar-alt me-1"></i> ${order.created}
+                                    </p>
+                                    <p class="card-text">
+                                        <i class="fas fa-map-marker-alt me-1"></i> 
+                                        <small>${order.address}</small>
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold">₱${order.total}</span>
+                                        <a href="/orders/${order.id}/" class="btn btn-sm btn-outline-primary">
+                                            View <i class="fas fa-arrow-right ms-1"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        } else {
+            orderList.classList.add('d-none');
+        }
+    }
+    
+    // Initial update
+    updateVisibleOrders();
+});
+</script>
+{% endblock %}

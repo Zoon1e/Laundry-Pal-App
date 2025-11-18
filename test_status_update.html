@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Status Update</title>
+    <script>
+        function testStatusUpdate() {
+            const orderId = document.getElementById('orderId').value;
+            const status = document.getElementById('status').value;
+            
+            console.log('Testing status update for order:', orderId, 'to status:', status);
+            
+            const formData = new FormData();
+            formData.append('status', status);
+            formData.append('csrfmiddlewaretoken', 'test-token');
+            
+            fetch(`http://localhost:8000/admin-panel/orders/update-status/${orderId}/`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.text();
+            })
+            .then(text => {
+                console.log('Response text:', text);
+                document.getElementById('result').innerHTML = text;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = 'Error: ' + error.message;
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Test Order Status Update</h1>
+    <div>
+        <label>Order ID: <input type="number" id="orderId" value="1"></label><br><br>
+        <label>New Status: 
+            <select id="status">
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="picked_up">Picked Up</option>
+                <option value="washing">Washing</option>
+                <option value="drying">Drying</option>
+                <option value="folding">Folding</option>
+                <option value="ready">Ready</option>
+                <option value="out_for_delivery">Out for Delivery</option>
+                <option value="delivered">Delivered</option>
+            </select>
+        </label><br><br>
+        <button onclick="testStatusUpdate()">Test Update</button>
+    </div>
+    <div id="result" style="margin-top: 20px; padding: 10px; border: 1px solid #ccc;"></div>
+</body>
+</html>

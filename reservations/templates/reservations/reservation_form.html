@@ -1,0 +1,376 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    {% if object %}Edit Reservation{% else %}New Reservation{% endif %} - Laundry Pal
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/reservation-enhanced.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div class="text-center mb-4">
+                <h2 class="display-6 fw-bold text-primary mb-2">
+                    {% if object %}Edit Reservation{% else %}Schedule Pickup{% endif %}
+                </h2>
+                <p class="text-muted">
+                    {% if object %}Update your reservation details{% else %}Book your laundry pickup and delivery{% endif %}
+                </p>
+            </div>
+
+            <!-- Form Card -->
+            <div class="card border-0 shadow-lg">
+                <div class="card-body p-4">
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Service Type Selection -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="fas fa-cog text-primary me-2"></i>Service Type
+                            </label>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="service-option">
+                                        <input type="radio" class="btn-check" name="service_type" id="wash_fold" value="1">
+                                        <label class="btn btn-outline-primary w-100 py-3" for="wash_fold">
+                                            <i class="fas fa-tshirt d-block fs-3 mb-2"></i>
+                                            <strong>Wash & Fold</strong>
+                                            <small class="d-block text-muted">₱750 base + ₱100/item</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="service-option">
+                                        <input type="radio" class="btn-check" name="service_type" id="dry_cleaning" value="2">
+                                        <label class="btn btn-outline-info w-100 py-3" for="dry_cleaning">
+                                            <i class="fas fa-user-tie d-block fs-3 mb-2"></i>
+                                            <strong>Dry Cleaning</strong>
+                                            <small class="d-block text-muted">₱1,250 base + ₱400/item</small>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="service-option">
+                                        <input type="radio" class="btn-check" name="service_type" id="premium_care" value="3">
+                                        <label class="btn btn-outline-warning w-100 py-3" for="premium_care">
+                                            <i class="fas fa-crown d-block fs-3 mb-2"></i>
+                                            <strong>Premium Care</strong>
+                                            <small class="d-block text-muted">₱1,750 base + ₱250/item</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Priority Selection -->
+                        <div class="form-group mb-4">
+                            <label class="form-label fw-bold mb-3">
+                                <i class="fas fa-exclamation-circle text-warning me-2"></i>Priority Level
+                            </label>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <input type="radio" class="btn-check" name="priority" id="standard" value="standard" checked>
+                                    <label class="btn btn-outline-secondary w-100 py-3 priority-btn" for="standard" data-priority="standard">
+                                        <i class="fas fa-clock mb-2 d-block fs-4"></i>
+                                        <strong>STANDARD (3-5 DAYS)</strong>
+                                    </label>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="radio" class="btn-check" name="priority" id="express" value="express">
+                                    <label class="btn btn-outline-warning w-100 py-3 priority-btn" for="express" data-priority="express">
+                                        <i class="fas fa-shipping-fast mb-2 d-block fs-4"></i>
+                                        <strong>EXPRESS (24H) +₱500</strong>
+                                    </label>
+                                </div>
+                                <div class="col-md-4">
+                                    <input type="radio" class="btn-check" name="priority" id="rush" value="rush">
+                                    <label class="btn btn-outline-danger w-100 py-3 priority-btn" for="rush" data-priority="rush">
+                                        <i class="fas fa-bolt mb-2 d-block fs-4"></i>
+                                        <strong>RUSH (SAME DAY)<br>+₱1,250</strong>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="delivery-time-alert alert alert-info mt-3" style="opacity: 0;">
+                                <i class="fas fa-info-circle me-2"></i>Estimated delivery: 3-5 business days
+                            </div>
+                        </div>
+
+                        <!-- Schedule Section -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.pickup_datetime.id_for_label }}" class="form-label">
+                                        <i class="fas fa-arrow-up text-primary me-2"></i>Pickup Date & Time
+                                    </label>
+                                    <div class="input-wrapper">
+                                        <input type="datetime-local" 
+                                               class="form-control" 
+                                               id="{{ form.pickup_datetime.id_for_label }}" 
+                                               name="{{ form.pickup_datetime.name }}" 
+                                               value="{{ form.pickup_datetime.value|default:'' }}"
+                                               required>
+                                        <i class="fas fa-calendar-alt input-icon"></i>
+                                    </div>
+                                    <div class="help-text">When should we pick up your laundry?</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.delivery_datetime.id_for_label }}" class="form-label">
+                                        <i class="fas fa-arrow-down text-success me-2"></i>Delivery Date & Time
+                                    </label>
+                                    <div class="input-wrapper">
+                                        <input type="datetime-local" 
+                                               class="form-control" 
+                                               id="{{ form.delivery_datetime.id_for_label }}" 
+                                               name="{{ form.delivery_datetime.name }}" 
+                                               value="{{ form.delivery_datetime.value|default:'' }}"
+                                               required>
+                                        <i class="fas fa-calendar-alt input-icon"></i>
+                                    </div>
+                                    <div class="help-text">When would you like it delivered?</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Address Section -->
+                        <div class="form-group mb-4">
+                            <label for="{{ form.address.id_for_label }}" class="form-label">
+                                <i class="fas fa-map-marker-alt text-danger me-2"></i>Pickup & Delivery Address
+                            </label>
+                            <div class="input-wrapper">
+                                <textarea class="form-control" 
+                                          id="{{ form.address.id_for_label }}" 
+                                          name="{{ form.address.name }}" 
+                                          rows="3" 
+                                          placeholder="Enter your complete address including apartment/unit number..."
+                                          required>{{ form.address.value|default:'' }}</textarea>
+                                <i class="fas fa-map-marker-alt input-icon"></i>
+                            </div>
+                            <div class="help-text">Please provide detailed address information for accurate pickup and delivery.</div>
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div class="form-group mb-4">
+                            <label for="phone_number" class="form-label">
+                                <i class="fas fa-phone text-info me-2"></i>Phone Number
+                            </label>
+                            <div class="input-wrapper">
+                                <input type="tel" 
+                                       class="form-control" 
+                                       id="phone_number" 
+                                       name="phone_number" 
+                                       placeholder="(555) 123-4567"
+                                       value="{{ form.phone_number.value|default:'' }}">
+                                <i class="fas fa-phone input-icon"></i>
+                            </div>
+                            <div class="help-text">We'll contact you for pickup coordination and updates.</div>
+                        </div>
+
+                        <!-- Special Notes -->
+                        <div class="mb-4">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label fw-semibold">
+                                <i class="fas fa-sticky-note text-secondary me-2"></i>Special Instructions (Optional)
+                            </label>
+                            <textarea class="form-control" 
+                                      id="{{ form.notes.id_for_label }}" 
+                                      name="{{ form.notes.name }}" 
+                                      rows="3" 
+                                      placeholder="Any special instructions, stain information, or preferences...">{{ form.notes.value|default:'' }}</textarea>
+                        </div>
+
+                        <!-- Cost Estimate -->
+                        <div class="alert alert-info mb-4">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-calculator fs-4 me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">Estimated Cost</h6>
+                                    <p class="mb-0">Base service fee + per-item charges will be calculated after pickup inspection.</p>
+                                    <small class="text-muted">Final cost may vary based on actual items and services required.</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex gap-3 justify-content-end">
+                            <a href="{% url 'reservations:reservation_list' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-arrow-left me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-{% if object %}save{% else %}calendar-check{% endif %} me-2"></i>
+                                {% if object %}Update Reservation{% else %}Schedule Pickup{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Help Section -->
+            <div class="row g-4 mt-4">
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <i class="fas fa-clock text-primary fs-2 mb-3"></i>
+                        <h6>Flexible Scheduling</h6>
+                        <p class="text-muted small">Choose pickup and delivery times that work for your schedule.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <i class="fas fa-shield-alt text-success fs-2 mb-3"></i>
+                        <h6>Safe & Secure</h6>
+                        <p class="text-muted small">Your items are tracked and insured throughout the process.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="text-center">
+                        <i class="fas fa-headset text-info fs-2 mb-3"></i>
+                        <h6>24/7 Support</h6>
+                        <p class="text-muted small">Contact us anytime if you need to modify your reservation.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Professional Laundry Form Typography */
+.display-6 {
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.03em !important;
+}
+
+.form-label {
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    letter-spacing: -0.01em !important;
+    color: #1e293b !important;
+}
+
+.help-text {
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 0.875rem !important;
+    color: #64748b !important;
+    margin-top: 0.5rem !important;
+    font-weight: 400 !important;
+}
+
+.form-control {
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 400 !important;
+    font-size: 1rem !important;
+}
+
+.form-control::placeholder {
+    font-family: 'Outfit', sans-serif !important;
+    color: #94a3b8 !important;
+}
+
+.service-option .btn strong,
+.priority-btn strong {
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.02em !important;
+}
+
+.service-option .btn small {
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 500 !important;
+}
+
+.alert h6 {
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-weight: 600 !important;
+}
+
+.alert p, .alert small {
+    font-family: 'Outfit', sans-serif !important;
+}
+
+.service-option .btn-check:checked + .btn {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: white;
+}
+
+.service-option .btn {
+    transition: all 0.3s ease;
+    border: 2px solid #dee2e6;
+}
+
+.service-option .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.form-control:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+.alert-info {
+    background-color: rgba(13, 202, 240, 0.1);
+    border-color: rgba(13, 202, 240, 0.2);
+}
+
+@media (max-width: 768px) {
+    .service-option .btn {
+        margin-bottom: 1rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-calculate delivery time based on priority
+    const priorityInputs = document.querySelectorAll('input[name="priority"]');
+    const pickupInput = document.getElementById('{{ form.pickup_datetime.id_for_label }}');
+    const deliveryInput = document.getElementById('{{ form.delivery_datetime.id_for_label }}');
+    
+    function updateDeliveryTime() {
+        if (!pickupInput.value) return;
+        
+        const pickupDate = new Date(pickupInput.value);
+        const priority = document.querySelector('input[name="priority"]:checked').value;
+        let deliveryDate = new Date(pickupDate);
+        
+        switch(priority) {
+            case 'rush':
+                deliveryDate.setHours(deliveryDate.getHours() + 8); // Same day
+                break;
+            case 'express':
+                deliveryDate.setDate(deliveryDate.getDate() + 1); // Next day
+                break;
+            default:
+                deliveryDate.setDate(deliveryDate.getDate() + 3); // 3 days
+        }
+        
+        deliveryInput.value = deliveryDate.toISOString().slice(0, 16);
+    }
+    
+    priorityInputs.forEach(input => {
+        input.addEventListener('change', updateDeliveryTime);
+    });
+    
+    pickupInput.addEventListener('change', updateDeliveryTime);
+    
+    // Form validation
+    const form = document.querySelector('.needs-validation');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,378 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Orders - Laundry Pal{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/order-list.css' %}?v=1.0.0" rel="stylesheet">
+<style>
+/* Inline CSS to ensure styles are applied */
+.laundry-orders-container {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%) !important;
+    padding: 1.5rem !important;
+    margin: -2rem -15px 0 -15px !important;
+    min-height: calc(100vh - 120px) !important;
+}
+.orders-header {
+    background: white !important;
+    border-radius: 1rem !important;
+    padding: 2rem !important;
+    margin-bottom: 2rem !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+.header-icon {
+    width: 60px !important;
+    height: 60px !important;
+    background: linear-gradient(135deg, #2563eb, #06b6d4) !important;
+    border-radius: 0.75rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: white !important;
+    font-size: 1.5rem !important;
+}
+.orders-title {
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    color: #1e293b !important;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/orders-enhanced.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="laundry-orders-container">
+    <!-- Header Section -->
+    <div class="orders-header">
+        <div class="header-content">
+            <div class="header-text">
+                <div class="header-icon">
+                    <i class="fas fa-tshirt"></i>
+                </div>
+                <div>
+                    <h1 class="orders-title">My Laundry Orders</h1>
+                    <p class="orders-subtitle">Track your clothes from pickup to fresh delivery</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <div class="filter-sort-group">
+                    <div class="dropdown">
+                        <button class="btn-filter" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-filter"></i>
+                            <span>Filter</span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                            <li><a class="dropdown-item filter-btn" href="#" data-filter="all">All Orders</a></li>
+                            <li><a class="dropdown-item filter-btn" href="#" data-filter="pending">Pending</a></li>
+                            <li><a class="dropdown-item filter-btn" href="#" data-filter="washing">In Progress</a></li>
+                            <li><a class="dropdown-item filter-btn" href="#" data-filter="ready">Ready</a></li>
+                            <li><a class="dropdown-item filter-btn" href="#" data-filter="delivered">Delivered</a></li>
+                        </ul>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn-sort" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-sort"></i>
+                            <span>Sort</span>
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="sortDropdown">
+                            <li><a class="dropdown-item sort-btn" href="#" data-sort="newest">Newest First</a></li>
+                            <li><a class="dropdown-item sort-btn" href="#" data-sort="oldest">Oldest First</a></li>
+                            <li><a class="dropdown-item sort-btn" href="#" data-sort="cost-high">Highest Cost</a></li>
+                            <li><a class="dropdown-item sort-btn" href="#" data-sort="cost-low">Lowest Cost</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <a href="{% url 'orders:create' %}" class="btn-new-order">
+                    <i class="fas fa-plus"></i>
+                    <span>New Order</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card stat-pending">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{ pending_count }}</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+            </div>
+            <div class="stat-card stat-pickup">
+                <div class="stat-icon">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{ picked_up_count }}</div>
+                    <div class="stat-label">Picked Up</div>
+                </div>
+            </div>
+            <div class="stat-card stat-washing">
+                <div class="stat-icon">
+                    <i class="fas fa-soap"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{ washing_count }}</div>
+                    <div class="stat-label">Washing</div>
+                </div>
+            </div>
+            <div class="stat-card stat-drying">
+                <div class="stat-icon">
+                    <i class="fas fa-wind"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{ drying_count }}</div>
+                    <div class="stat-label">Drying</div>
+                </div>
+            </div>
+            <div class="stat-card stat-delivery">
+                <div class="stat-icon">
+                    <i class="fas fa-shipping-fast"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{ out_for_delivery_count }}</div>
+                    <div class="stat-label">Out for Delivery</div>
+                </div>
+            </div>
+            <div class="stat-card stat-delivered">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">{{ delivered_count }}</div>
+                    <div class="stat-label">Delivered</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders List -->
+    {% if orders %}
+        <div class="orders-section">
+            <div class="orders-grid">
+            {% for order in orders %}
+                <div class="order-card" 
+                     data-status="{{ order.status }}" 
+                     data-order-id="{{ order.pk }}" 
+                     data-order-number="{{ order.order_number }}"
+                     data-created="{{ order.created_at|date:'c' }}"
+                     data-total="${{ order.total_cost|floatformat:2 }}"
+                     data-items="{{ order.items.all|join:', '|truncatewords:10 }}"
+                     data-cost="{{ order.total_cost }}">
+                    
+                    <div class="order-header">
+                        <div class="order-info">
+                            <div class="order-number">Order #{{ order.order_number }}</div>
+                            <div class="order-date">{{ order.created_at|date:"M d, Y g:i A" }}</div>
+                        </div>
+                        <div class="order-status">
+                            <span class="status-badge status-{{ order.status }}">
+                                <i class="status-icon fas fa-{{ order.get_status_icon }}"></i>
+                                {{ order.get_status_display }}
+                            </span>
+                        </div>
+                        <div class="order-menu">
+                            <div class="dropdown">
+                                <button class="btn-menu" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item quick-view-btn" href="#" data-order-id="{{ order.pk }}">
+                                        <i class="fas fa-eye"></i>Quick View
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{% url 'orders:detail' order.pk %}">
+                                        <i class="fas fa-info-circle"></i>Full Details
+                                    </a></li>
+                                    {% if order.status in 'pending,confirmed' %}
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item status-update-btn" href="#" 
+                                           data-order-id="{{ order.pk }}" 
+                                           data-new-status="confirmed"
+                                           data-original-text="Mark Confirmed">
+                                        <i class="fas fa-check"></i>Mark Confirmed
+                                    </a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if user.is_staff or user.is_superuser %}
+                    <!-- Customer Information (Admin Only) -->
+                    <div class="customer-info">
+                        <div class="customer-details">
+                            <div class="customer-name">
+                                <i class="fas fa-user me-2"></i>
+                                <strong>{{ order.user.first_name|default:order.user.username }}{% if order.user.last_name %} {{ order.user.last_name }}{% endif %}</strong>
+                            </div>
+                            <div class="customer-email">
+                                <i class="fas fa-envelope me-2"></i>
+                                {{ order.user.email }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="order-body">
+                        <!-- Progress Section -->
+                        <div class="progress-section">
+                            <div class="progress-header">
+                                <span class="progress-label">Progress</span>
+                                <span class="progress-percentage">{{ order.get_progress_percentage }}%</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar status-{{ order.status }}" 
+                                     style="width: {{ order.get_progress_percentage }}%"
+                                     data-progress="{{ order.get_progress_percentage }}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Details Grid -->
+                        <div class="order-details">
+                            {% if order.reservation %}
+                            <div class="detail-item">
+                                <div class="detail-icon">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                <div class="detail-content">
+                                    <div class="detail-label">Reservation</div>
+                                    <div class="detail-value">#{{ order.reservation.pk }}</div>
+                                    <div class="detail-sub">{{ order.reservation.pickup_datetime|date:"M d, g:i A" }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <div class="detail-item">
+                                <div class="detail-icon">
+                                    <i class="fas fa-tshirt"></i>
+                                </div>
+                                <div class="detail-content">
+                                    <div class="detail-label">Items</div>
+                                    <div class="detail-value">{{ order.total_items }} pieces</div>
+                                </div>
+                            </div>
+
+                            <div class="detail-item">
+                                <div class="detail-icon">
+                                    <i class="fas fa-dollar-sign"></i>
+                                </div>
+                                <div class="detail-content">
+                                    <div class="detail-label">Total Cost</div>
+                                    <div class="detail-value">${{ order.total_cost }}</div>
+                                </div>
+                            </div>
+
+                            {% if order.estimated_completion %}
+                            <div class="detail-item">
+                                <div class="detail-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="detail-content">
+                                    <div class="detail-label">Estimated Completion</div>
+                                    <div class="detail-value">{{ order.estimated_completion|date:"M d, g:i A" }}</div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Items Preview -->
+                        {% if order.items.all %}
+                        <div class="items-preview">
+                            <div class="items-label">Items:</div>
+                            <div class="items-tags">
+                                {% for item in order.items.all|slice:":3" %}
+                                <span class="item-tag">
+                                    {{ item.get_item_type_display }} x{{ item.quantity }}
+                                </span>
+                                {% endfor %}
+                                {% if order.items.count > 3 %}
+                                <span class="item-tag more-items">+{{ order.items.count|add:"-3" }} more</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if order.special_instructions %}
+                        <div class="special-instructions">
+                            <div class="instructions-icon">
+                                <i class="fas fa-sticky-note"></i>
+                            </div>
+                            <div class="instructions-text">{{ order.special_instructions|truncatewords:12 }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="order-footer">
+                        <a href="{% url 'orders:detail' order.pk %}" class="btn-primary">
+                            <i class="fas fa-eye"></i>
+                            <span>View Details</span>
+                        </a>
+                        {% if order.status in 'pending,confirmed' %}
+                        <a href="{% url 'orders:update' order.pk %}" class="btn-secondary">
+                            <i class="fas fa-edit"></i>
+                            <span>Edit</span>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="pagination-section">
+            <div class="pagination-container">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1" class="pagination-btn">
+                        <i class="fas fa-angle-double-left"></i>
+                        <span>First</span>
+                    </a>
+                    <a href="?page={{ page_obj.previous_page_number }}" class="pagination-btn">
+                        <i class="fas fa-angle-left"></i>
+                        <span>Previous</span>
+                    </a>
+                {% endif %}
+
+                <div class="pagination-info">
+                    <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                </div>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="pagination-btn">
+                        <span>Next</span>
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}" class="pagination-btn">
+                        <span>Last</span>
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+    {% else %}
+        <!-- Empty State -->
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-tshirt"></i>
+            </div>
+            <h3 class="empty-title">No Laundry Orders Yet</h3>
+            <p class="empty-subtitle">Start your first order and let us take care of your clothes!</p>
+            <a href="{% url 'orders:create' %}" class="btn-new-order">
+                <i class="fas fa-plus"></i>
+                <span>Create Your First Order</span>
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

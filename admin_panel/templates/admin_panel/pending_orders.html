@@ -1,0 +1,420 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block page_title %}Pending Orders{% endblock %}
+{% block page_subtitle %}Manage orders awaiting confirmation{% endblock %}
+
+{% block content %}
+<!-- Hidden CSRF Token for AJAX requests -->
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+<!-- Pending Orders Stats -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="admin-stat-card stat-warning">
+            <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-number">{{ pending_count }}</h3>
+                <p class="stat-label">Pending Orders</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="admin-stat-card stat-info">
+            <div class="stat-icon">
+                <i class="fas fa-hourglass-half"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-number">
+                    {% if pending_count > 0 %}
+                        {{ page_obj|length }}
+                    {% else %}
+                        0
+                    {% endif %}
+                </h3>
+                <p class="stat-label">Showing on Page</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="admin-stat-card stat-primary">
+            <div class="stat-icon">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <div class="stat-content">
+                <h3 class="stat-number">
+                    <button class="btn btn-sm btn-outline-light" onclick="confirmAllPending()">
+                        Confirm All
+                    </button>
+                </h3>
+                <p class="stat-label">Quick Action</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Orders Table -->
+<div class="admin-table">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    <input type="checkbox" id="selectAll" class="form-check-input">
+                </th>
+                <th>Order #</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in page_obj %}
+                <tr id="order-row-{{ order.id }}">
+                    <td>
+                        <input type="checkbox" class="form-check-input order-checkbox" value="{{ order.id }}">
+                    </td>
+                    <td>
+                        <div class="order-info">
+                            <strong>#{{ order.order_number }}</strong>
+                            {% if order.reservation %}
+                                <br><small class="text-muted">Res: #{{ order.reservation.id }}</small>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="customer-info-compact">
+                            <div class="customer-name">
+                                <strong>{{ order.user.first_name|default:order.user.username }}</strong>
+                                {% if order.user.last_name %}{{ order.user.last_name }}{% endif %}
+                            </div>
+                            <small class="text-muted">{{ order.user.email }}</small>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="items-info">
+                            <strong>{{ order.total_items }}</strong> items
+                            {% if order.items.exists %}
+                                <br><small class="text-muted">
+                                    {% for item in order.items.all|slice:":2" %}
+                                        {{ item.get_item_type_display }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                    {% if order.items.count > 2 %}...{% endif %}
+                                </small>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <strong class="text-success">${{ order.total_cost|floatformat:2 }}</strong>
+                    </td>
+                    <td>
+                        <div class="date-info">
+                            {{ order.created_at|date:"M d, Y" }}
+                            <br><small class="text-muted">{{ order.created_at|time:"g:i A" }}</small>
+                            <br><small class="text-warning">{{ order.created_at|timesince }} ago</small>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-success confirm-order-btn" 
+                                    data-order-id="{{ order.id }}" 
+                                    data-order-number="{{ order.order_number }}">
+                                <i class="fas fa-check me-1"></i>Confirm
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-split" 
+                                    data-bs-toggle="dropdown">
+                                <span class="visually-hidden">Toggle Dropdown</span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="/orders/{{ order.id }}/" target="_blank">
+                                        <i class="fas fa-eye me-2"></i>View Details
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item status-update-btn" href="#" 
+                                       data-order-id="{{ order.id }}" 
+                                       data-status="picked_up">
+                                        <i class="fas fa-truck me-2"></i>Mark Picked Up
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-danger status-update-btn" href="#" 
+                                       data-order-id="{{ order.id }}" 
+                                       data-status="cancelled">
+                                        <i class="fas fa-times me-2"></i>Cancel Order
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-5">
+                        <div class="admin-empty-state">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <h5>No Pending Orders</h5>
+                            <p>All orders have been processed! 🎉</p>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Bulk Actions -->
+{% if page_obj %}
+<div class="admin-card mt-4">
+    <div class="admin-card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <strong>Bulk Actions:</strong>
+                <span id="selected-count">0</span> orders selected
+            </div>
+            <div class="btn-group">
+                <button type="button" class="btn btn-success" id="bulk-confirm-btn" disabled>
+                    <i class="fas fa-check me-2"></i>Confirm Selected
+                </button>
+                <button type="button" class="btn btn-warning" id="bulk-pickup-btn" disabled>
+                    <i class="fas fa-truck me-2"></i>Mark as Picked Up
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+    <div class="admin-pagination mt-4">
+        <nav>
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const orderCheckboxes = document.querySelectorAll('.order-checkbox');
+    const selectedCountSpan = document.getElementById('selected-count');
+    const bulkConfirmBtn = document.getElementById('bulk-confirm-btn');
+    const bulkPickupBtn = document.getElementById('bulk-pickup-btn');
+
+    // Select all functionality
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            orderCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateBulkActions();
+        });
+    }
+
+    // Individual checkbox functionality
+    orderCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateBulkActions);
+    });
+
+    // Update bulk action buttons
+    function updateBulkActions() {
+        const selectedOrders = document.querySelectorAll('.order-checkbox:checked');
+        const count = selectedOrders.length;
+        
+        selectedCountSpan.textContent = count;
+        
+        if (bulkConfirmBtn) bulkConfirmBtn.disabled = count === 0;
+        if (bulkPickupBtn) bulkPickupBtn.disabled = count === 0;
+        
+        // Update select all checkbox state
+        if (selectAllCheckbox) {
+            selectAllCheckbox.indeterminate = count > 0 && count < orderCheckboxes.length;
+            selectAllCheckbox.checked = count === orderCheckboxes.length && count > 0;
+        }
+    }
+
+    // Confirm individual order
+    document.querySelectorAll('.confirm-order-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const orderId = this.dataset.orderId;
+            const orderNumber = this.dataset.orderNumber;
+            
+            if (confirm(`Confirm order ${orderNumber}?`)) {
+                updateOrderStatus(orderId, 'confirmed', this);
+            }
+        });
+    });
+
+    // Status update buttons
+    document.querySelectorAll('.status-update-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const orderId = this.dataset.orderId;
+            const status = this.dataset.status;
+            
+            updateOrderStatus(orderId, status, this);
+        });
+    });
+
+    // Bulk confirm
+    if (bulkConfirmBtn) {
+        bulkConfirmBtn.addEventListener('click', function() {
+            const selectedOrders = document.querySelectorAll('.order-checkbox:checked');
+            const orderIds = Array.from(selectedOrders).map(cb => cb.value);
+            
+            if (confirm(`Confirm ${orderIds.length} orders?`)) {
+                bulkUpdateOrders(orderIds, 'confirmed');
+            }
+        });
+    }
+
+    // Bulk pickup
+    if (bulkPickupBtn) {
+        bulkPickupBtn.addEventListener('click', function() {
+            const selectedOrders = document.querySelectorAll('.order-checkbox:checked');
+            const orderIds = Array.from(selectedOrders).map(cb => cb.value);
+            
+            if (confirm(`Mark ${orderIds.length} orders as picked up?`)) {
+                bulkUpdateOrders(orderIds, 'picked_up');
+            }
+        });
+    }
+
+    function updateOrderStatus(orderId, status, buttonElement) {
+        const formData = new FormData();
+        formData.append('status', status);
+        formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+        // Disable button during request
+        if (buttonElement) {
+            buttonElement.disabled = true;
+            buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Processing...';
+        }
+
+        fetch(`/admin-panel/orders/update-status/${orderId}/`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', `Order status updated to ${data.new_status}!`);
+                // Remove row from pending orders view
+                const row = document.getElementById(`order-row-${orderId}`);
+                if (row) {
+                    row.style.transition = 'opacity 0.3s ease';
+                    row.style.opacity = '0';
+                    setTimeout(() => row.remove(), 300);
+                }
+            } else {
+                showAlert('danger', 'Error updating order status: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('danger', 'An error occurred while updating the order status.');
+        })
+        .finally(() => {
+            if (buttonElement) {
+                buttonElement.disabled = false;
+                buttonElement.innerHTML = '<i class="fas fa-check me-1"></i>Confirm';
+            }
+        });
+    }
+
+    function bulkUpdateOrders(orderIds, status) {
+        let completed = 0;
+        const total = orderIds.length;
+        
+        orderIds.forEach(orderId => {
+            updateOrderStatus(orderId, status);
+            completed++;
+            
+            if (completed === total) {
+                setTimeout(() => {
+                    showAlert('success', `Successfully updated ${total} orders!`);
+                    setTimeout(() => location.reload(), 2000);
+                }, 1000);
+            }
+        });
+    }
+
+    function showAlert(type, message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show admin-alert`;
+        alertDiv.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        const container = document.querySelector('.container-fluid');
+        container.insertBefore(alertDiv, container.firstChild);
+        
+        setTimeout(() => {
+            const bsAlert = new bootstrap.Alert(alertDiv);
+            bsAlert.close();
+        }, 5000);
+    }
+});
+
+function confirmAllPending() {
+    const pendingCount = {{ pending_count }};
+    if (pendingCount === 0) {
+        alert('No pending orders to confirm!');
+        return;
+    }
+    
+    if (confirm(`Confirm all ${pendingCount} pending orders?`)) {
+        // Select all checkboxes and trigger bulk confirm
+        document.getElementById('selectAll').checked = true;
+        document.getElementById('selectAll').dispatchEvent(new Event('change'));
+        document.getElementById('bulk-confirm-btn').click();
+    }
+}
+</script>
+{% endblock %}

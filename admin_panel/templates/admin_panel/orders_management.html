@@ -1,0 +1,346 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block page_title %}Order Management{% endblock %}
+{% block page_subtitle %}View and manage all customer orders{% endblock %}
+
+{% block content %}
+<!-- Hidden CSRF Token for AJAX requests -->
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+<!-- Filters -->
+<div class="admin-filters">
+    <h6 class="filter-title">
+        <i class="fas fa-filter me-2"></i>Filter Orders
+    </h6>
+    <form method="get" class="row g-3">
+        <div class="col-md-3">
+            <label class="admin-form-label">Status</label>
+            <select name="status" class="form-select admin-form-control">
+                <option value="">All Statuses</option>
+                {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if current_filters.status == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="admin-form-label">Search</label>
+            <input type="text" name="search" class="form-control admin-form-control" 
+                   placeholder="Order #, customer name..." value="{{ current_filters.search }}">
+        </div>
+        <div class="col-md-2">
+            <label class="admin-form-label">From Date</label>
+            <input type="date" name="date_from" class="form-control admin-form-control" 
+                   value="{{ current_filters.date_from }}">
+        </div>
+        <div class="col-md-2">
+            <label class="admin-form-label">To Date</label>
+            <input type="date" name="date_to" class="form-control admin-form-control" 
+                   value="{{ current_filters.date_to }}">
+        </div>
+        <div class="col-md-2">
+            <label class="admin-form-label">&nbsp;</label>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-admin-primary">
+                    <i class="fas fa-search me-2"></i>Filter
+                </button>
+                <a href="{% url 'admin_panel:orders' %}" class="btn btn-admin-secondary">
+                    <i class="fas fa-times me-2"></i>Clear
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Orders Table -->
+<div class="admin-table">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Order #</th>
+                <th>Customer</th>
+                <th>Status</th>
+                <th>Items</th>
+                <th>Total</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in page_obj %}
+                <tr id="order-row-{{ order.id }}">
+                    <td>
+                        <strong>#{{ order.order_number }}</strong>
+                        {% if order.reservation %}
+                            <br><small class="text-muted">Res: #{{ order.reservation.id }}</small>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div>
+                            <strong>{{ order.user.first_name|default:order.user.username }}</strong>
+                            {% if order.user.last_name %}{{ order.user.last_name }}{% endif %}
+                        </div>
+                        <small class="text-muted">{{ order.user.email }}</small>
+                    </td>
+                    <td>
+                        <div class="status-container" id="status-container-{{ order.id }}">
+                            <span class="badge bg-{{ order.get_status_color }} status-badge" 
+                                  id="status-badge-{{ order.id }}">
+                                {{ order.get_status_display }}
+                            </span>
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div class="progress-bar bg-{{ order.get_status_color }}" 
+                                     id="progress-bar-{{ order.id }}"
+                                     style="width: {{ order.get_progress_percentage }}%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <strong>{{ order.total_items }}</strong> items
+                        {% if order.items.exists %}
+                            <br><small class="text-muted">
+                                {% for item in order.items.all|slice:":2" %}
+                                    {{ item.get_item_type_display }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                                {% if order.items.count > 2 %}...{% endif %}
+                            </small>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <strong class="text-success">${{ order.total_cost|floatformat:2 }}</strong>
+                    </td>
+                    <td>
+                        {{ order.created_at|date:"M d, Y" }}
+                        <br><small class="text-muted">{{ order.created_at|time:"g:i A" }}</small>
+                    </td>
+                    <td>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" 
+                                    data-bs-toggle="dropdown">
+                                <i class="fas fa-cog"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><h6 class="dropdown-header">Update Status</h6></li>
+                                {% for value, label in status_choices %}
+                                    {% if value != order.status %}
+                                        <li>
+                                            <a class="dropdown-item status-update-btn" 
+                                               href="#" 
+                                               data-order-id="{{ order.id }}" 
+                                               data-status="{{ value }}">
+                                                <i class="fas fa-{{ order.get_status_icon }} me-2"></i>{{ label }}
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="/orders/{{ order.id }}/" target="_blank">
+                                        <i class="fas fa-eye me-2"></i>View Details
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-5">
+                        <div class="admin-empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <h5>No Orders Found</h5>
+                            <p>No orders match your current filters.</p>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+    <div class="admin-pagination mt-4">
+        <nav>
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.date_from %}&date_from={{ request.GET.date_from }}{% endif %}{% if request.GET.date_to %}&date_to={{ request.GET.date_to }}{% endif %}">
+                            <i class="fas fa-angle-double-right"></i>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+{% endif %}
+
+<!-- Status Update Modal -->
+<div class="modal fade" id="statusUpdateModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Order Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to update the status of order <strong id="modal-order-number"></strong>?</p>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    This action will be logged and the customer may receive notifications.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmStatusUpdate">Update Status</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const statusUpdateBtns = document.querySelectorAll('.status-update-btn');
+    const modal = new bootstrap.Modal(document.getElementById('statusUpdateModal'));
+    const confirmBtn = document.getElementById('confirmStatusUpdate');
+    let currentOrderId = null;
+    let currentStatus = null;
+
+    statusUpdateBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            currentOrderId = this.dataset.orderId;
+            currentStatus = this.dataset.status;
+            
+            const orderRow = document.getElementById(`order-row-${currentOrderId}`);
+            const orderNumber = orderRow.querySelector('strong').textContent;
+            document.getElementById('modal-order-number').textContent = orderNumber;
+            
+            modal.show();
+        });
+    });
+
+    confirmBtn.addEventListener('click', function() {
+        if (currentOrderId && currentStatus) {
+            updateOrderStatus(currentOrderId, currentStatus);
+        }
+    });
+
+    function updateOrderStatus(orderId, status) {
+        console.log('Updating order:', orderId, 'to status:', status);
+        
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (!csrfToken) {
+            console.error('CSRF token not found');
+            showAlert('danger', 'Security token not found. Please refresh the page.');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('status', status);
+        formData.append('csrfmiddlewaretoken', csrfToken.value);
+
+        // Disable the confirm button to prevent double-clicks
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Updating...';
+
+        fetch(`/admin-panel/orders/update-status/${orderId}/`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response data:', data);
+            if (data.success) {
+                // Update the status badge
+                const statusBadge = document.getElementById(`status-badge-${orderId}`);
+                const progressBar = document.getElementById(`progress-bar-${orderId}`);
+                
+                if (statusBadge) {
+                    statusBadge.textContent = data.new_status;
+                    statusBadge.className = `badge bg-${data.status_color} status-badge`;
+                }
+                
+                if (progressBar) {
+                    progressBar.style.width = `${data.progress_percentage}%`;
+                    progressBar.className = `progress-bar bg-${data.status_color}`;
+                }
+                
+                // Show success message
+                showAlert('success', 'Order status updated successfully!');
+                
+                modal.hide();
+            } else {
+                showAlert('danger', 'Error updating order status: ' + (data.error || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            showAlert('danger', 'An error occurred while updating the order status: ' + error.message);
+        })
+        .finally(() => {
+            // Re-enable the confirm button
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = 'Update Status';
+        });
+    }
+
+    function showAlert(type, message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show admin-alert`;
+        alertDiv.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        const container = document.querySelector('.container-fluid');
+        container.insertBefore(alertDiv, container.firstChild);
+        
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+            const bsAlert = new bootstrap.Alert(alertDiv);
+            bsAlert.close();
+        }, 5000);
+    }
+});
+</script>
+{% endblock %}

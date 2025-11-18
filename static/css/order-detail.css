@@ -1,0 +1,412 @@
+/* ===================================
+   LAUNDRY PAL - ORDER DETAIL PAGE
+   Matches Home Interface Design
+   =================================== */
+
+/* ===== VARIABLES ===== */
+:root {
+    --primary-blue: #2563eb;
+    --primary-cyan: #06b6d4;
+    --secondary-gray: #64748b;
+    --success-green: #10b981;
+    --warning-yellow: #f59e0b;
+    --light-bg: #f8fafc;
+    --white: #ffffff;
+    --dark-text: #1e293b;
+    --light-text: #64748b;
+}
+
+/* Custom Scrollbar - Blue/Cyan Theme */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    border-radius: 10px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #2563eb, #06b6d4);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(37, 99, 235, 0.3);
+    transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #1e40af, #0891b2);
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.5);
+}
+
+/* Firefox Scrollbar */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: #2563eb #f8fafc;
+}
+
+/* Typography Enhancement */
+.order-detail-container {
+    font-family: 'Inter', sans-serif;
+}
+
+.order-detail-container h1,
+.order-detail-container h2,
+.order-detail-container .display-6 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+}
+
+.order-detail-container h1::after,
+.order-detail-container h2::after,
+.order-detail-container .display-6::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #2563eb, #06b6d4);
+    border-radius: 2px;
+    animation: shimmer 2s ease-in-out infinite alternate;
+}
+
+@keyframes shimmer {
+    0% { opacity: 0.7; transform: scaleX(1); }
+    100% { opacity: 1; transform: scaleX(1.2); }
+}
+
+.order-detail-container h5,
+.order-detail-container h6 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.order-detail-container .card-header h5,
+.order-detail-container .card-header h6 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2563eb;
+}
+
+/* Enhanced Cards with Scroll */
+.order-detail-container .card {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+    background: rgba(255,255,255,0.95);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    position: relative;
+}
+
+.order-detail-container .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #2563eb, #06b6d4, #10b981);
+    background-size: 300% 100%;
+    animation: gradientShift 3s ease infinite;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.order-detail-container .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+/* Scrollable Card Body */
+.order-detail-container .card-body {
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+
+.order-detail-container .card-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.order-detail-container .card-body::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.05);
+    border-radius: 3px;
+}
+
+.order-detail-container .card-body::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #2563eb, #06b6d4);
+    border-radius: 3px;
+}
+
+/* Timeline Enhancements */
+.progress-timeline {
+    position: relative;
+    padding-left: 2.5rem;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 1rem;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 2.5rem;
+    opacity: 0.6;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 1rem;
+    border-radius: 15px;
+    background: rgba(255,255,255,0.5);
+    backdrop-filter: blur(5px);
+}
+
+.timeline-item:hover {
+    opacity: 1;
+    transform: translateX(10px);
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.timeline-item.active,
+.timeline-item.completed {
+    opacity: 1;
+    background: rgba(37, 99, 235, 0.08);
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -3rem;
+    top: 1rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border: 3px solid #dee2e6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.timeline-item.active .timeline-marker {
+    background: linear-gradient(135deg, #2563eb, #06b6d4);
+    border-color: #2563eb;
+    color: white;
+    animation: pulse 2s infinite;
+    box-shadow: 0 0 20px rgba(37, 99, 235, 0.5);
+}
+
+.timeline-item.completed .timeline-marker {
+    background: linear-gradient(135deg, #10b981, #059669);
+    border-color: #10b981;
+    color: white;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+}
+
+
+.timeline-content h6 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+/* Table Enhancements */
+.table-responsive {
+    max-height: 400px;
+    overflow-y: auto;
+    border-radius: 15px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+}
+
+.table {
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 0;
+}
+
+.table th {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    color: #495057;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.table td {
+    vertical-align: middle;
+    border-color: rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.table tbody tr:hover {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(6, 182, 212, 0.05));
+    transform: scale(1.01);
+}
+
+/* Progress Bar Enhancement */
+.progress {
+    height: 15px;
+    border-radius: 25px;
+    background: linear-gradient(135deg, rgba(0,0,0,0.05), rgba(0,0,0,0.1));
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    overflow: hidden;
+    position: relative;
+}
+
+.progress::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.3) 50%, transparent 70%);
+    animation: progressShine 2s ease-in-out infinite;
+}
+
+@keyframes progressShine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.progress-bar {
+    border-radius: 25px;
+    background: linear-gradient(135deg, #2563eb, #06b6d4, #10b981);
+    background-size: 200% 100%;
+    animation: progressGradient 3s ease infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes progressGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Badge Enhancements */
+.badge {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    display: inline-block;
+    min-width: fit-content;
+}
+
+.badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* Button Enhancements */
+.btn {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.875rem;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+/* Alert Enhancements */
+.alert {
+    border: none;
+    border-radius: 15px;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(6, 182, 212, 0.1));
+    backdrop-filter: blur(10px);
+    border-left: 4px solid #2563eb;
+    font-family: 'Outfit', sans-serif;
+}
+
+/* Responsive Enhancements */
+@media (max-width: 768px) {
+    .order-detail-container .card-body {
+        max-height: 300px;
+    }
+    
+    .progress-timeline {
+        max-height: 250px;
+        padding-left: 2rem;
+    }
+    
+    .timeline-marker {
+        left: -2.5rem;
+        width: 2rem;
+        height: 2rem;
+    }
+    
+    .table-responsive {
+        max-height: 250px;
+    }
+}
+
+/* Floating Elements */
+.floating-laundry {
+    position: fixed;
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.1;
+    font-size: 2rem;
+    animation: float 6s ease-in-out infinite;
+}
+
+.floating-laundry:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+.floating-laundry:nth-child(2) { top: 20%; right: 10%; animation-delay: 1s; }
+.floating-laundry:nth-child(3) { bottom: 20%; left: 15%; animation-delay: 2s; }
+.floating-laundry:nth-child(4) { bottom: 10%; right: 20%; animation-delay: 3s; }
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(180deg); }
+}

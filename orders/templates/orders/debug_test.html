@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CSS Debug Test - Laundry Pal{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/order-list.css' %}" rel="stylesheet">
+<style>
+.debug-test {
+    background: red;
+    color: white;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 10px;
+}
+.css-loaded {
+    background: green !important;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="debug-test">
+    <h2>CSS Debug Test</h2>
+    <p>If this box is RED, basic CSS is working.</p>
+    <p>If this box turns GREEN, our custom CSS is loaded.</p>
+</div>
+
+<div class="laundry-orders-container">
+    <div class="orders-header">
+        <div class="header-content">
+            <div class="header-text">
+                <div class="header-icon">
+                    <i class="fas fa-tshirt"></i>
+                </div>
+                <div>
+                    <h1 class="orders-title">CSS Test - My Laundry Orders</h1>
+                    <p class="orders-subtitle">If you can see this styled properly, the CSS is working!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-card stat-pending">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Test if our CSS classes exist
+document.addEventListener('DOMContentLoaded', function() {
+    const testElement = document.querySelector('.debug-test');
+    const headerElement = document.querySelector('.orders-header');
+    
+    if (headerElement && window.getComputedStyle(headerElement).backgroundColor !== 'rgba(0, 0, 0, 0)') {
+        testElement.classList.add('css-loaded');
+        testElement.innerHTML = '<h2>✅ SUCCESS!</h2><p>Custom CSS is loaded and working!</p>';
+    } else {
+        testElement.innerHTML = '<h2>❌ CSS NOT LOADED</h2><p>Custom CSS file is not loading properly.</p>';
+    }
+});
+</script>
+{% endblock %}

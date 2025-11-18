@@ -1,0 +1,326 @@
+{% extends 'admin_panel/base_admin.html' %}
+
+{% block page_title %}Pricing Management{% endblock %}
+{% block page_subtitle %}Configure service pricing rules and multipliers{% endblock %}
+
+{% block content %}
+<!-- Add New Pricing Rule -->
+<div class="admin-card mb-4">
+    <div class="admin-card-header">
+        <h5 class="admin-card-title">
+            <i class="fas fa-plus me-2"></i>Add New Pricing Rule
+        </h5>
+    </div>
+    <div class="admin-card-body">
+        <form id="newPricingForm" class="row g-3">
+            {% csrf_token %}
+            <div class="col-md-3">
+                <label class="admin-form-label">Service Category</label>
+                <select name="service_category" class="form-select admin-form-control" required>
+                    <option value="">Select Service</option>
+                    {% for value, label in service_choices %}
+                        <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="admin-form-label">Item Category</label>
+                <select name="item_category" class="form-select admin-form-control" required>
+                    <option value="">Select Item</option>
+                    {% for value, label in item_choices %}
+                        <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="admin-form-label">Base Price ($)</label>
+                <input type="number" name="base_price" class="form-control admin-form-control" 
+                       step="0.01" min="0" placeholder="0.00" required>
+            </div>
+            <div class="col-md-2">
+                <label class="admin-form-label">Express Multiplier</label>
+                <input type="number" name="express_multiplier" class="form-control admin-form-control" 
+                       step="0.1" min="1" value="1.5" required>
+            </div>
+            <div class="col-md-2">
+                <label class="admin-form-label">Rush Multiplier</label>
+                <input type="number" name="rush_multiplier" class="form-control admin-form-control" 
+                       step="0.1" min="1" value="2.0" required>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-admin-primary">
+                    <i class="fas fa-plus me-2"></i>Add Pricing Rule
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Existing Pricing Rules -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h5 class="admin-card-title">
+            <i class="fas fa-list me-2"></i>Current Pricing Rules
+        </h5>
+    </div>
+    <div class="admin-card-body">
+        {% if pricing_rules %}
+            <div class="admin-table">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Service Category</th>
+                            <th>Item Category</th>
+                            <th>Base Price</th>
+                            <th>Express Price</th>
+                            <th>Rush Price</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rule in pricing_rules %}
+                            <tr id="pricing-row-{{ rule.id }}">
+                                <td>
+                                    <strong>{{ rule.get_service_category_display }}</strong>
+                                </td>
+                                <td>{{ rule.get_item_category_display }}</td>
+                                <td>
+                                    <span class="editable-price" data-field="base_price" data-rule-id="{{ rule.id }}">
+                                        ${{ rule.base_price|floatformat:2 }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="text-warning">
+                                        ${{ rule.base_price|floatformat:2|mul:rule.express_multiplier|floatformat:2 }}
+                                    </span>
+                                    <small class="text-muted">({{ rule.express_multiplier }}x)</small>
+                                </td>
+                                <td>
+                                    <span class="text-danger">
+                                        ${{ rule.base_price|floatformat:2|mul:rule.rush_multiplier|floatformat:2 }}
+                                    </span>
+                                    <small class="text-muted">({{ rule.rush_multiplier }}x)</small>
+                                </td>
+                                <td>
+                                    {% if rule.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-outline-primary edit-pricing-btn" 
+                                                data-rule-id="{{ rule.id }}"
+                                                data-service="{{ rule.service_category }}"
+                                                data-item="{{ rule.item_category }}"
+                                                data-base-price="{{ rule.base_price }}"
+                                                data-express-multiplier="{{ rule.express_multiplier }}"
+                                                data-rush-multiplier="{{ rule.rush_multiplier }}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger delete-pricing-btn" 
+                                                data-rule-id="{{ rule.id }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="admin-empty-state">
+                <i class="fas fa-dollar-sign"></i>
+                <h5>No Pricing Rules Found</h5>
+                <p>Add your first pricing rule using the form above.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Edit Pricing Modal -->
+<div class="modal fade" id="editPricingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Pricing Rule</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editPricingForm">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <input type="hidden" id="edit-rule-id" name="rule_id">
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="admin-form-label">Service Category</label>
+                            <select id="edit-service-category" name="service_category" class="form-select admin-form-control" disabled>
+                                {% for value, label in service_choices %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="admin-form-label">Item Category</label>
+                            <select id="edit-item-category" name="item_category" class="form-select admin-form-control" disabled>
+                                {% for value, label in item_choices %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="admin-form-label">Base Price ($)</label>
+                            <input type="number" id="edit-base-price" name="base_price" class="form-control admin-form-control" 
+                                   step="0.01" min="0" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="admin-form-label">Express Multiplier</label>
+                            <input type="number" id="edit-express-multiplier" name="express_multiplier" class="form-control admin-form-control" 
+                                   step="0.1" min="1" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="admin-form-label">Rush Multiplier</label>
+                            <input type="number" id="edit-rush-multiplier" name="rush_multiplier" class="form-control admin-form-control" 
+                                   step="0.1" min="1" required>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Preview:</strong>
+                        <div id="pricing-preview" class="mt-2">
+                            <div>Standard: <span id="preview-standard">$0.00</span></div>
+                            <div>Express: <span id="preview-express">$0.00</span></div>
+                            <div>Rush: <span id="preview-rush">$0.00</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Pricing</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const newPricingForm = document.getElementById('newPricingForm');
+    const editPricingForm = document.getElementById('editPricingForm');
+    const editModal = new bootstrap.Modal(document.getElementById('editPricingModal'));
+
+    // Add new pricing rule
+    newPricingForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        fetch('{% url "admin_panel:update_pricing" %}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', 'Pricing rule added successfully!');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showAlert('danger', 'Error adding pricing rule: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('danger', 'An error occurred while adding the pricing rule.');
+        });
+    });
+
+    // Edit pricing rule buttons
+    document.querySelectorAll('.edit-pricing-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const ruleId = this.dataset.ruleId;
+            const service = this.dataset.service;
+            const item = this.dataset.item;
+            const basePrice = this.dataset.basePrice;
+            const expressMultiplier = this.dataset.expressMultiplier;
+            const rushMultiplier = this.dataset.rushMultiplier;
+            
+            document.getElementById('edit-rule-id').value = ruleId;
+            document.getElementById('edit-service-category').value = service;
+            document.getElementById('edit-item-category').value = item;
+            document.getElementById('edit-base-price').value = basePrice;
+            document.getElementById('edit-express-multiplier').value = expressMultiplier;
+            document.getElementById('edit-rush-multiplier').value = rushMultiplier;
+            
+            updatePricingPreview();
+            editModal.show();
+        });
+    });
+
+    // Update pricing rule
+    editPricingForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        fetch('{% url "admin_panel:update_pricing" %}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showAlert('success', 'Pricing rule updated successfully!');
+                editModal.hide();
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showAlert('danger', 'Error updating pricing rule: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('danger', 'An error occurred while updating the pricing rule.');
+        });
+    });
+
+    // Update pricing preview
+    function updatePricingPreview() {
+        const basePrice = parseFloat(document.getElementById('edit-base-price').value) || 0;
+        const expressMultiplier = parseFloat(document.getElementById('edit-express-multiplier').value) || 1;
+        const rushMultiplier = parseFloat(document.getElementById('edit-rush-multiplier').value) || 1;
+        
+        document.getElementById('preview-standard').textContent = '$' + basePrice.toFixed(2);
+        document.getElementById('preview-express').textContent = '$' + (basePrice * expressMultiplier).toFixed(2);
+        document.getElementById('preview-rush').textContent = '$' + (basePrice * rushMultiplier).toFixed(2);
+    }
+
+    // Update preview when inputs change
+    document.getElementById('edit-base-price').addEventListener('input', updatePricingPreview);
+    document.getElementById('edit-express-multiplier').addEventListener('input', updatePricingPreview);
+    document.getElementById('edit-rush-multiplier').addEventListener('input', updatePricingPreview);
+
+    function showAlert(type, message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show admin-alert`;
+        alertDiv.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        const container = document.querySelector('.container-fluid');
+        container.insertBefore(alertDiv, container.firstChild);
+        
+        setTimeout(() => {
+            const bsAlert = new bootstrap.Alert(alertDiv);
+            bsAlert.close();
+        }, 5000);
+    }
+});
+</script>
+{% endblock %}

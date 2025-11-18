@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Laundry Pal{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Premium Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@200;300;400;500&display=swap" rel="stylesheet">
+    {% load static %}
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+    <link href="{% static 'css/footer.css' %}" rel="stylesheet">
+    <style>
+    /* Professional Laundry-Themed Typography */
+    body {
+        font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-weight: 400;
+        letter-spacing: 0.01em;
+    }
+    
+    /* Navigation fonts */
+    .navbar-nav .nav-link {
+        font-family: 'Outfit', sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 1.05rem !important;
+        letter-spacing: 0.01em;
+        color: white !important;
+        opacity: 0.9;
+        transition: all 0.3s ease;
+    }
+    
+    .navbar-nav .nav-link:hover {
+        color: white !important;
+        opacity: 1;
+        text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    }
+    
+    .navbar-brand {
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-weight: 700 !important;
+        letter-spacing: -0.02em;
+        color: white !important;
+    }
+    
+    .navbar-brand img {
+        background: rgb(255, 255, 255);
+        border-radius:50%;
+        padding: -50px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        width: 125px !important;
+        height: 125px !important;
+        object-fit: contain;
+        display: block;
+        aspect-ratio: 1/1;
+        flex-shrink: 0;
+    }
+    
+    /* Heading hierarchy */
+    h1, h2, h3, h4, h5, h6,
+    .h1, .h2, .h3, .h4, .h5, .h6 {
+        font-family: 'Space Grotesk', sans-serif !important;
+        font-weight: 700 !important;
+        letter-spacing: -0.02em;
+    }
+    
+    /* Buttons and interactive elements */
+    .btn {
+        font-family: 'Outfit', sans-serif !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.02em;
+    }
+    
+    /* Form elements */
+    input, textarea, select {
+        font-family: 'Outfit', sans-serif !important;
+    }
+    
+    /* ===== NAVBAR WAVE DESIGN ===== */
+    .navbar-with-wave {
+        position: relative;
+        margin-bottom: 2rem;
+        overflow: visible;
+        z-index: 1000;
+    }
+    
+    /* Ensure navbar content stays above wave */
+    .navbar-with-wave .container {
+        position: relative;
+        z-index: 1001;
+    }
+    
+    /* Wave Design - Bottom of Navbar (similar to footer) */
+    .navbar-with-wave::after {
+        content: '';
+        position: absolute;
+        bottom: -25px;
+        left: 0;
+        width: 100%;
+        height: 50px;
+        background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%);
+        clip-path: polygon(
+            0% 0%, 
+            100% 0%, 
+            100% 60%, 
+            95% 65%, 
+            90% 70%, 
+            85% 65%, 
+            80% 60%, 
+            75% 65%, 
+            70% 70%, 
+            65% 65%, 
+            60% 60%, 
+            55% 65%, 
+            50% 70%, 
+            45% 65%, 
+            40% 60%, 
+            35% 65%, 
+            30% 70%, 
+            25% 65%, 
+            20% 60%, 
+            15% 65%, 
+            10% 70%, 
+            5% 65%, 
+            0% 60%
+        );
+        z-index: 999;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+    }
+    
+    /* Adjust main container to account for wave */
+    main.container {
+        margin-top: 1.5rem;
+    }
+    
+    /* Mobile responsiveness for navbar wave */
+    @media (max-width: 768px) {
+        .navbar-with-wave {
+            margin-bottom: 1.5rem;
+        }
+        
+        .navbar-with-wave::after {
+            bottom: -20px;
+            height: 40px;
+        }
+        
+        main.container {
+            margin-top: 1rem;
+        }
+    }
+    
+    /* ===== FLOATING NAVBAR ICONS ===== */
+    .floating-navbar-icons {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+        overflow: hidden;
+    }
+    
+    .floating-icon-navbar {
+        position: absolute;
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 2rem;
+        animation: floatNavbar 6s ease-in-out infinite;
+        text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+    }
+    
+    .floating-icon-navbar.icon-navbar-1 {
+        top: 15%;
+        left: 5%;
+        animation-delay: 0s;
+        font-size: 2rem;
+    }
+    
+    .floating-icon-navbar.icon-navbar-2 {
+        top: 25%;
+        right: 8%;
+        animation-delay: 1s;
+        font-size: 1.8rem;
+    }
+    
+    .floating-icon-navbar.icon-navbar-3 {
+        top: 45%;
+        left: 3%;
+        animation-delay: 2s;
+        font-size: 1.9rem;
+    }
+    
+    .floating-icon-navbar.icon-navbar-4 {
+        top: 35%;
+        right: 12%;
+        animation-delay: 3s;
+        font-size: 2.1rem;
+    }
+    
+    .floating-icon-navbar.icon-navbar-5 {
+        bottom: 20%;
+        left: 8%;
+        animation-delay: 4s;
+        font-size: 1.7rem;
+    }
+    
+    .floating-icon-navbar.icon-navbar-6 {
+        bottom: 15%;
+        right: 5%;
+        animation-delay: 5s;
+        font-size: 1.9rem;
+    }
+    
+    .floating-icon-navbar.icon-navbar-7 {
+        top: 60%;
+        left: 15%;
+        animation-delay: 1.5s;
+        font-size: 2.2rem;
+    }
+    
+    .floating-icon-navbar.icon-navbar-8 {
+        top: 10%;
+        right: 25%;
+        animation-delay: 2.5s;
+        font-size: 2rem;
+    }
+    
+    .floating-icon-navbar.icon-navbar-9 {
+        bottom: 35%;
+        right: 20%;
+        animation-delay: 3.5s;
+        font-size: 1.8rem;
+    }
+    
+    .floating-icon-navbar.icon-navbar-10 {
+        top: 50%;
+        left: 25%;
+        animation-delay: 4.5s;
+        font-size: 2.1rem;
+    }
+    
+    .floating-icon-navbar.icon-navbar-11 {
+        bottom: 45%;
+        left: 20%;
+        animation-delay: 0.5s;
+        font-size: 1.9rem;
+    }
+    
+    .floating-icon-navbar.icon-navbar-12 {
+        top: 30%;
+        right: 30%;
+        animation-delay: 1.8s;
+        font-size: 2rem;
+    }
+    
+    @keyframes floatNavbar {
+        0%, 100% { 
+            transform: translateY(0px) rotate(0deg);
+            opacity: 0.4;
+        }
+        25% { 
+            transform: translateY(-8px) rotate(5deg);
+            opacity: 0.6;
+        }
+        50% { 
+            transform: translateY(-6px) rotate(-3deg);
+            opacity: 0.5;
+        }
+        75% { 
+            transform: translateY(-10px) rotate(7deg);
+            opacity: 0.7;
+        }
+    }
+    
+    /* Hide floating icons on mobile to avoid clutter */
+    @media (max-width: 768px) {
+        .floating-navbar-icons {
+            display: none;
+        }
+    }
+    </style>
+    {% block extra_css %}{% endblock %}
+  </head>
+  <body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-with-wave" style="background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%); box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+      <!-- Floating Navbar Icons -->
+      <div class="floating-navbar-icons">
+        <i class="fas fa-tshirt floating-icon-navbar icon-navbar-1"></i>
+        <i class="fas fa-soap floating-icon-navbar icon-navbar-2"></i>
+        <i class="fas fa-wind floating-icon-navbar icon-navbar-3"></i>
+        <i class="fas fa-washing-machine floating-icon-navbar icon-navbar-4"></i>
+        <i class="fas fa-spray-can floating-icon-navbar icon-navbar-5"></i>
+        <i class="fas fa-sun floating-icon-navbar icon-navbar-6"></i>
+        <i class="fas fa-shopping-basket floating-icon-navbar icon-navbar-7"></i>
+        <i class="fas fa-shirt floating-icon-navbar icon-navbar-8"></i>
+        <i class="fas fa-droplet floating-icon-navbar icon-navbar-9"></i>
+        <i class="fas fa-sparkles floating-icon-navbar icon-navbar-10"></i>
+        <i class="fas fa-leaf floating-icon-navbar icon-navbar-11"></i>
+        <i class="fas fa-clock floating-icon-navbar icon-navbar-12"></i>
+      </div>
+      <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="/">
+          <img src="{% static 'images/logo.png' %}" alt="Laundry Pal Logo" height="80" class="me-2">
+          <span class="fw-bold text-white">Laundry Pal</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample" aria-controls="navbarsExample" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarsExample">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link" href="/reservations/">
+                <i class="fas fa-calendar-plus me-2"></i>Reservations
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/orders/">
+                <i class="fas fa-box me-2"></i>Appointment
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link position-relative" href="/notifications/">
+                <i class="fas fa-bell me-2"></i>Notifications
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="navNotificationBadge" style="display: none; font-size: 0.6rem;">
+                  0
+                </span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/history/">
+                <i class="fas fa-history me-2"></i>History
+              </a>
+            </li>
+          </ul>
+          <div class="d-flex align-items-center gap-2">
+            {% if user.is_authenticated %}
+              {% if user.is_staff or user.is_superuser %}
+                <a class="btn btn-outline-light btn-sm" href="/admin-panel/" title="Admin Panel">
+                  <i class="fas fa-cogs me-1"></i>Admin
+                </a>
+              {% endif %}
+              <span class="text-white me-2">Hi, {{ user.username }}</span>
+              <form method="post" action="{% url 'logout' %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-light">
+                  <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </button>
+              </form>
+            {% else %}
+              <a class="btn btn-outline-light" href="/accounts/login/">Login</a>
+              <a class="btn btn-light" href="/accounts/signup/">Sign up</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <main class="container py-4">
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- Modern Footer -->
+    <footer class="laundry-footer">
+      <div class="wave-layer"></div>
+      <div class="container">
+        <div class="row g-4">
+          <!-- Brand Section -->
+          <div class="col-lg-4 col-md-6">
+            <div class="footer-brand">
+              <div class="d-flex align-items-center mb-3">
+                <img src="{% static 'images/logo.png' %}" alt="Laundry Pal Logo" class="me-2" style="background: white; border-radius: 50%; padding: 20px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); width: 120px !important; height: 120px !important; object-fit: contain; display: block; aspect-ratio: 1/1; flex-shrink: 0;">
+                <h5 class="footer-title mb-0">Laundry Pal</h5>
+              </div>
+              <p class="footer-description">
+                Your trusted partner for premium laundry services. We make your clothes fresh, clean, and ready to wear with professional care and attention to detail.
+              </p>
+              <div class="footer-social">
+                <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Links -->
+          <div class="col-lg-2 col-md-6">
+            <h6 class="footer-heading">Services</h6>
+            <ul class="footer-links">
+              <li><a href="/reservations/">Book Service</a></li>
+              <li><a href="/orders/">Track Orders</a></li>
+              <li><a href="/history/">Order History</a></li>
+              <li><a href="/notifications/">Notifications</a></li>
+            </ul>
+          </div>
+
+          <!-- Support -->
+          <div class="col-lg-2 col-md-6">
+            <h6 class="footer-heading">Support</h6>
+            <ul class="footer-links">
+              <li><a href="#">Help Center</a></li>
+              <li><a href="#">Contact Us</a></li>
+              <li><a href="#">FAQ</a></li>
+              <li><a href="#">Live Chat</a></li>
+            </ul>
+          </div>
+
+          <!-- Contact Info -->
+          <div class="col-lg-4 col-md-6">
+            <h6 class="footer-heading">Get in Touch</h6>
+            <div class="footer-contact">
+              <div class="contact-item">
+                <i class="fas fa-phone"></i>
+                <span>+63 950 866 1368</span>
+              </div>
+              <div class="contact-item">
+                <i class="fas fa-envelope"></i>
+                <span>support@laundrypal.com</span>
+              </div>
+              <div class="contact-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>Sitio. Cogon Larrazabal, Naval, Biliran</span>
+              </div>
+              <div class="contact-item">
+                <i class="fas fa-clock"></i>
+                <span>Mon-Fri: 7AM-9PM, Sat-Sun: 8AM-8PM</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom">
+          <div class="row align-items-center">
+            <div class="col-md-6">
+              <p class="footer-copyright mb-0">
+                © 2025 Laundry Pal. All rights reserved.
+              </p>
+            </div>
+            <div class="col-md-6">
+              <div class="footer-legal">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Cookie Policy</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Laundry Elements -->
+      <div class="footer-floating-elements">
+        <div class="floating-element" style="--delay: 0s; --duration: 8s;"><i class="fas fa-tshirt"></i></div>
+        <div class="floating-element" style="--delay: 2s; --duration: 10s;"><i class="fas fa-shopping-basket"></i></div>
+        <div class="floating-element" style="--delay: 4s; --duration: 12s;"><i class="fas fa-soap"></i></div>
+        <div class="floating-element" style="--delay: 6s; --duration: 9s;"><i class="fas fa-washing-machine"></i></div>
+        <div class="floating-element" style="--delay: 1s; --duration: 11s;"><i class="fas fa-wind"></i></div>
+        <div class="floating-element" style="--delay: 3s; --duration: 9s;"><i class="fas fa-spray-can"></i></div>
+        <div class="floating-element" style="--delay: 5s; --duration: 13s;"><i class="fas fa-sun"></i></div>
+        <div class="floating-element" style="--delay: 7s; --duration: 10s;"><i class="fas fa-droplet"></i></div>
+      </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/auth.js' %}"></script>
+    <script src="{% static 'js/notifications.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+  </body>
+</html>

@@ -1,0 +1,644 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order #{{ order.order_number }} - Laundry Pal{% endblock %}
+
+{% block extra_css %}
+<link href="{% static 'css/order-detail.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="order-detail-container">
+    <!-- Modern Header Section -->
+    <div class="order-detail-header">
+        <div class="container">
+            <div class="header-content-wrapper">
+                <div class="header-left">
+                    <div class="order-icon">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <div class="order-header-info">
+                        <h1 class="order-title">Order #{{ order.order_number }}</h1>
+                        <p class="order-date-text">
+                            <i class="fas fa-calendar-alt me-2"></i>Created on {{ order.created_at|date:"M d, Y g:i A" }}
+                        </p>
+                    </div>
+                </div>
+                <div class="header-actions-group">
+                    <a href="{% url 'orders:list' %}" class="btn-back">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Back to Orders</span>
+                    </a>
+                    {% if order.status in 'pending,confirmed' %}
+                    <a href="{% url 'orders:update' order.pk %}" class="btn-edit">
+                        <i class="fas fa-edit"></i>
+                        <span>Edit Order</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container py-4">
+
+    <div class="row g-4">
+        <!-- Order Status Card -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-info-circle text-primary me-2"></i>Order Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Status Badge -->
+                    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                        <span class="badge bg-{{ order.get_status_color }} status-badge-main">
+                            {{ order.get_status_display }}
+                        </span>
+                        <small class="text-muted">Last updated: {{ order.updated_at|date:"M d, g:i A" }}</small>
+                    </div>
+
+                    <!-- Progress Timeline -->
+                    <div class="progress-timeline mb-4">
+                        <div class="timeline-item {% if order.status == 'pending' %}active{% elif order.get_progress_percentage > 0 %}completed{% endif %}">
+                            <div class="timeline-marker">
+                                <i class="fas fa-hourglass-start"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Order Placed</h6>
+                                <small>{{ order.created_at|date:"M d, g:i A" }}</small>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item {% if order.status == 'confirmed' %}active{% elif order.get_progress_percentage > 10 %}completed{% endif %}">
+                            <div class="timeline-marker">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Confirmed</h6>
+                                <small>Order confirmed and scheduled</small>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item {% if order.status == 'picked_up' %}active{% elif order.get_progress_percentage > 20 %}completed{% endif %}">
+                            <div class="timeline-marker">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Picked Up</h6>
+                                <small>Items collected from location</small>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item {% if order.status in 'washing,drying,folding' %}active{% elif order.get_progress_percentage > 40 %}completed{% endif %}">
+                            <div class="timeline-marker">
+                                <i class="fas fa-tint"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Processing</h6>
+                                <small>Washing, drying & folding</small>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item {% if order.status == 'ready' %}active{% elif order.get_progress_percentage > 90 %}completed{% endif %}">
+                            <div class="timeline-marker">
+                                <i class="fas fa-check-double"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Ready</h6>
+                                <small>Items ready for delivery</small>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item {% if order.status == 'out_for_delivery' %}active{% elif order.status == 'delivered' %}completed{% endif %}">
+                            <div class="timeline-marker">
+                                <i class="fas fa-shipping-fast"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Out for Delivery</h6>
+                                <small>On the way to you</small>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item {% if order.status == 'delivered' %}completed{% endif %}">
+                            <div class="timeline-marker">
+                                <i class="fas fa-home"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Delivered</h6>
+                                <small>Order completed</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <small class="text-muted fw-semibold">Overall Progress</small>
+                            <small class="text-muted">{{ order.get_progress_percentage }}%</small>
+                        </div>
+                        <div class="progress" style="height: 12px;">
+                            <div class="progress-bar bg-{{ order.get_status_color }}" 
+                                 role="progressbar" 
+                                 style="width: {{ order.get_progress_percentage }}%"
+                                 aria-valuenow="{{ order.get_progress_percentage }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if order.estimated_completion %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-clock me-2"></i>
+                        <strong>Estimated Completion:</strong> {{ order.estimated_completion|date:"M d, Y g:i A" }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-list text-primary me-2"></i>Order Items
+                    </h5>
+                    <span class="badge bg-light text-dark">{{ order.items.count }} items</span>
+                </div>
+                <div class="card-body">
+                    {% if order.items.all %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Item Type</th>
+                                        <th>Service</th>
+                                        <th>Quantity</th>
+                                        <th>Unit Price</th>
+                                        <th>Total</th>
+                                        <th>Instructions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in order.items.all %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-tshirt text-primary me-2"></i>
+                                                {{ item.get_item_type_display }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary">{{ item.get_service_level_display }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-semibold">{{ item.quantity }}</span>
+                                        </td>
+                                        <td>${{ item.unit_price }}</td>
+                                        <td class="fw-bold text-success">${{ item.total_price }}</td>
+                                        <td>
+                                            {% if item.instructions %}
+                                                <small class="text-muted">{{ item.instructions|truncatewords:5 }}</small>
+                                            {% else %}
+                                                <small class="text-muted">-</small>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot class="table-light">
+                                    <tr>
+                                        <th colspan="4" class="text-end">Total Cost:</th>
+                                        <th class="text-success fs-5">${{ order.total_cost }}</th>
+                                        <th></th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-box-open text-muted fs-1 mb-3"></i>
+                            <p class="text-muted">No items added to this order yet.</p>
+                            {% if order.status in 'pending,confirmed' %}
+                            <a href="{% url 'orders:update' order.pk %}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Add Items
+                            </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Details Sidebar -->
+        <div class="col-lg-4">
+            <!-- Reservation Info -->
+            {% if order.reservation %}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0">
+                    <h6 class="mb-0 fw-bold">
+                        <i class="fas fa-calendar text-primary me-2"></i>Linked Reservation
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Reservation #{{ order.reservation.pk }}</strong></p>
+                    <div class="mb-2">
+                        <small class="text-muted">Pickup:</small>
+                        <div>{{ order.reservation.pickup_datetime|date:"M d, Y g:i A" }}</div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Delivery:</small>
+                        <div>{{ order.reservation.delivery_datetime|date:"M d, Y g:i A" }}</div>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Address:</small>
+                        <div>{{ order.reservation.address }}</div>
+                    </div>
+                    <a href="{% url 'reservations:detail' order.reservation.pk %}" class="btn btn-outline-primary btn-sm w-100">
+                        <i class="fas fa-eye me-2"></i>View Reservation
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Order Summary -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0">
+                    <h6 class="mb-0 fw-bold">
+                        <i class="fas fa-receipt text-primary me-2"></i>Order Summary
+                    </h6>
+                </div>
+                <div class="card-body order-summary-body">
+                    <div class="summary-row">
+                        <span class="summary-label">Total Items:</span>
+                        <span class="summary-value fw-semibold">{{ order.total_items }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Status:</span>
+                        <span class="badge bg-{{ order.get_status_color }} status-badge-summary">{{ order.get_status_display }}</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Created:</span>
+                        <span class="summary-value">{{ order.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold">Total Cost:</span>
+                        <span class="fw-bold text-success fs-5">${{ order.total_cost }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Special Instructions -->
+            {% if order.special_instructions %}
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0">
+                    <h6 class="mb-0 fw-bold">
+                        <i class="fas fa-sticky-note text-primary me-2"></i>Special Instructions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">{{ order.special_instructions }}</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+</div>
+
+<style>
+/* Modern Header Section - Matches Home Interface */
+.order-detail-header {
+    background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%);
+    padding: 2.5rem 0;
+    margin: -2rem -15px 2rem -15px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.order-detail-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 40%);
+    pointer-events: none;
+}
+
+.header-content-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+    position: relative;
+    z-index: 1;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.order-icon {
+    width: 70px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.order-header-info {
+    color: white;
+}
+
+.order-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: white !important;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+    background: none !important;
+    -webkit-text-fill-color: white !important;
+}
+
+.order-title::after {
+    display: none;
+}
+
+.order-date-text {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.header-actions-group {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.btn-back,
+.btn-edit {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    color: white;
+}
+
+.btn-back:hover,
+.btn-edit:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    color: white;
+}
+
+.btn-edit {
+    background: rgba(255, 255, 255, 0.9);
+    color: #2563eb;
+    border-color: white;
+}
+
+.btn-edit:hover {
+    background: white;
+    color: #1e40af;
+}
+
+@media (max-width: 768px) {
+    .header-content-wrapper {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .header-left {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .header-actions-group {
+        width: 100%;
+        flex-direction: column;
+    }
+    
+    .btn-back,
+    .btn-edit {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .order-title {
+        font-size: 1.5rem;
+    }
+    
+    /* Responsive badge sizing for mobile */
+    .status-badge-main {
+        font-size: 0.85rem !important;
+        padding: 0.6rem 1.2rem !important;
+    }
+    
+    .status-badge-summary {
+        font-size: 0.65rem !important;
+        padding: 0.4rem 0.8rem !important;
+    }
+    
+    /* Summary row responsive */
+    .summary-row {
+        gap: 0.5rem;
+    }
+    
+    .summary-label,
+    .summary-value {
+        font-size: 0.813rem;
+    }
+}
+
+/* Fix Status Badges - Proper Sizing for Long Text */
+.status-badge-main {
+    white-space: nowrap !important;
+    padding: 0.75rem 1.5rem !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    border-radius: 0.5rem !important;
+    display: inline-block !important;
+    min-width: fit-content !important;
+}
+
+.status-badge-summary {
+    white-space: nowrap !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 0.7rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    border-radius: 0.5rem !important;
+    display: inline-block !important;
+    min-width: fit-content !important;
+}
+
+/* Order Summary Specific Styling */
+.order-summary-body {
+    padding: 1.25rem !important;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: nowrap;
+}
+
+.summary-label {
+    flex-shrink: 0;
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.summary-value {
+    text-align: right;
+    font-size: 0.875rem;
+}
+
+/* Ensure Order Summary layout accommodates longer text */
+.card-body .d-flex {
+    gap: 0.75rem;
+}
+
+.progress-timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+    opacity: 0.5;
+    transition: all 0.3s ease;
+}
+
+.timeline-item.active,
+.timeline-item.completed {
+    opacity: 1;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -2rem;
+    top: 1.5rem;
+    width: 2px;
+    height: 100%;
+    background-color: #dee2e6;
+    z-index: 1;
+}
+
+.timeline-item:last-child::before {
+    display: none;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -2.5rem;
+    top: 0;
+    width: 2rem;
+    height: 2rem;
+    background-color: #f8f9fa;
+    border: 2px solid #dee2e6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transition: all 0.3s ease;
+}
+
+.timeline-item.active .timeline-marker {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+.timeline-item.completed .timeline-marker {
+    background-color: var(--bs-success);
+    border-color: var(--bs-success);
+    color: white;
+}
+
+.timeline-content h6 {
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.timeline-content small {
+    color: #6c757d;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(var(--bs-primary-rgb), 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(var(--bs-primary-rgb), 0); }
+    100% { box-shadow: 0 0 0 0 rgba(var(--bs-primary-rgb), 0); }
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+}
+
+.progress {
+    border-radius: 10px;
+    background-color: rgba(0,0,0,0.05);
+}
+
+.progress-bar {
+    border-radius: 10px;
+    transition: width 0.6s ease;
+}
+
+@media (max-width: 768px) {
+    .progress-timeline {
+        padding-left: 1.5rem;
+    }
+    
+    .timeline-marker {
+        left: -2rem;
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+    
+    .timeline-item::before {
+        left: -1.75rem;
+    }
+}
+</style>
+{% endblock %}

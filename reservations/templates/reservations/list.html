@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Reservations{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+	<h2>Your Reservations</h2>
+	<a class="btn btn-primary" href="{% url 'reservations:create' %}">New Reservation</a>
+</div>
+
+<div class="list-group">
+	{% for r in reservations %}
+		<a href="{% url 'reservations:detail' r.pk %}" class="list-group-item list-group-item-action">
+			<div class="d-flex w-100 justify-content-between">
+				<h5 class="mb-1">Pickup: {{ r.pickup_datetime|date:"M d, Y H:i" }}</h5>
+				<small class="text-muted">{{ r.get_status_display }}</small>
+			</div>
+			<p class="mb-1">Delivery: {{ r.delivery_datetime|date:"M d, Y H:i" }}</p>
+			<small class="text-muted">{{ r.address }}</small>
+		</a>
+	{% empty %}
+		<p class="text-muted">No reservations yet.</p>
+	{% endfor %}
+</div>
+{% endblock %}
+
