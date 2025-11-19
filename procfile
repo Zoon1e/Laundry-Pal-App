@@ -1,1 +1,1 @@
-web: gunicorn yourprojectname.wsgi
+web: gunicorn laundry_pal.wsgi
