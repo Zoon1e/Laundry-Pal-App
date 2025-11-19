@@ -17,6 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
+from django.contrib.sitemaps.views import sitemap
+from .sitemaps import StaticViewSitemap
+
+sitemaps = {
+    'static': StaticViewSitemap,
+}
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,4 +36,5 @@ urlpatterns = [
     path('history/', include('history.urls')),
     path('admin-panel/', include('admin_panel.urls')),  # Custom admin panel
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}),
 ]
