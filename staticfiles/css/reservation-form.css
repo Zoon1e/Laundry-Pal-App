@@ -1,0 +1,391 @@
+/* ===================================
+   RESERVATION FORM - OPTIMIZED DESIGN
+   Matches Homepage Blue/Cyan Theme
+   =================================== */
+
+:root {
+    --primary-blue: #2563eb;
+    --primary-cyan: #06b6d4;
+    --secondary-gray: #64748b;
+    --light-gray: #94a3b8;
+    --white: #ffffff;
+    --dark-text: #1e293b;
+    --light-bg: #f8fafc;
+}
+
+/* Container */
+.reservation-container {
+    background: var(--light-bg);
+    min-height: 100vh;
+    padding: 2rem 0;
+}
+
+/* Header Section */
+.reservation-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.reservation-header h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary-blue), var(--primary-cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
+}
+
+.reservation-header p {
+    font-family: 'Outfit', sans-serif;
+    color: var(--secondary-gray);
+    font-size: 1.125rem;
+}
+
+/* Main Card */
+.reservation-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Section Headers */
+.section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--light-bg);
+}
+
+.section-header i {
+    font-size: 1.5rem;
+}
+
+.section-header h3 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--dark-text);
+}
+
+/* Service Type Cards */
+.service-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.service-card {
+    position: relative;
+}
+
+.service-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+}
+
+.service-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 1rem;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.service-label:hover {
+    border-color: var(--primary-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15);
+}
+
+.service-card input[type="radio"]:checked + .service-label {
+    background: linear-gradient(135deg, var(--primary-blue), var(--primary-cyan));
+    border-color: var(--primary-blue);
+    color: white;
+}
+
+.service-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.service-card input[type="radio"]:checked + .service-label .service-icon {
+    color: white;
+}
+
+.service-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.125rem;
+    margin-bottom: 0.25rem;
+}
+
+.service-price {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.875rem;
+    opacity: 0.9;
+}
+
+/* Priority Cards */
+.priority-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.priority-card {
+    position: relative;
+}
+
+.priority-card input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+}
+
+.priority-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 1rem;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    min-height: 140px;
+}
+
+.priority-label:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.priority-card input[type="radio"]:checked + .priority-label {
+    border-color: currentColor;
+    border-width: 3px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.priority-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.priority-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1.3;
+}
+
+/* Priority Colors */
+.priority-standard .priority-label {
+    color: #64748b;
+}
+
+.priority-express .priority-label {
+    color: #fbbf24;
+}
+
+.priority-rush .priority-label {
+    color: #ef4444;
+}
+
+/* Date Time Section */
+.datetime-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--dark-text);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.form-control {
+    font-family: 'Outfit', sans-serif;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    padding-top: 2rem;
+    border-top: 2px solid var(--light-bg);
+}
+
+.btn {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    padding: 0.875rem 2rem;
+    border-radius: 12px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-blue), var(--primary-cyan));
+    color: white;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+}
+
+.btn-secondary {
+    background: white;
+    color: var(--secondary-gray);
+    border: 2px solid #e2e8f0;
+}
+
+.btn-secondary:hover {
+    background: var(--light-bg);
+    border-color: var(--secondary-gray);
+}
+
+/* Info Alert */
+.info-alert {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(6, 182, 212, 0.1));
+    border: 2px solid rgba(37, 99, 235, 0.2);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.info-alert i {
+    font-size: 1.5rem;
+    color: var(--primary-blue);
+    flex-shrink: 0;
+}
+
+.info-alert-content h6 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    color: var(--dark-text);
+    margin-bottom: 0.25rem;
+}
+
+.info-alert-content p {
+    font-family: 'Outfit', sans-serif;
+    color: var(--secondary-gray);
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* Help Section */
+.help-section {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.help-card {
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.help-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.help-card h6 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    color: var(--dark-text);
+    margin-bottom: 0.5rem;
+}
+
+.help-card p {
+    font-family: 'Outfit', sans-serif;
+    color: var(--secondary-gray);
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .service-grid,
+    .priority-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .datetime-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .help-section {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .reservation-header h2 {
+        font-size: 2rem;
+    }
+}
