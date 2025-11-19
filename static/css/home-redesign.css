@@ -758,6 +758,285 @@
     letter-spacing: 0.05em;
 }
 
+/* ===== TUTORIAL SECTION ===== */
+.tutorial-section {
+    margin-top: 4rem;
+    padding: 3rem 0;
+    background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.tutorial-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 30%);
+    pointer-events: none;
+}
+
+.tutorial-title {
+    font-family: 'Merienda', cursive !important;
+    font-size: 3rem !important;
+    text-align: center;
+    color: white !important;
+    margin-bottom: 1rem;
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    font-weight: 700;
+}
+
+.tutorial-title::before,
+.tutorial-title::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 25%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.tutorial-title::before {
+    left: 10%;
+}
+
+.tutorial-title::after {
+    right: 10%;
+}
+
+.steps-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3rem;
+    margin-top: 3rem;
+}
+
+.step-card {
+    text-align: center;
+    padding: 2rem;
+}
+
+.step-icon {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin: 0 auto 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-graphic {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.phone-graphic::before {
+    content: '';
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-3deg);
+    width: 90px;
+    height: 110px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 45% 55% 52% 48% / 48% 45% 55% 52%;
+    z-index: -1;
+}
+
+.truck-graphic::before {
+    content: '';
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) rotate(2deg);
+    width: 130px;
+    height: 70px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 52% 48% 45% 55% / 55% 52% 48% 45%;
+    z-index: -1;
+}
+
+.relax-graphic::before {
+    content: '';
+    position: absolute;
+    bottom: 25px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-2deg);
+    width: 110px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 48% 52% 55% 45% / 52% 48% 52% 48%;
+    z-index: -1;
+}
+
+.icon-graphic i {
+    font-size: 5rem;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.phone-graphic .fa-mobile-alt {
+    font-size: 4.5rem;
+    color: white;
+}
+
+.phone-graphic .clock-overlay {
+    position: absolute;
+    font-size: 2rem;
+    color: white;
+    background: var(--primary-cyan);
+    border-radius: 50%;
+    padding: 0.3rem;
+    bottom: 20px;
+    right: 20px;
+}
+
+.truck-graphic .fa-truck {
+    font-size: 5rem;
+    color: white;
+}
+
+.truck-graphic .speed-lines {
+    position: absolute;
+    left: -20px;
+    width: 40px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.6);
+    opacity: 0.6;
+}
+
+.truck-graphic .speed-lines::before,
+.truck-graphic .speed-lines::after {
+    content: '';
+    position: absolute;
+    width: 30px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.4);
+    opacity: 0.4;
+}
+
+.truck-graphic .speed-lines::before {
+    top: -8px;
+}
+
+.truck-graphic .speed-lines::after {
+    top: 8px;
+}
+
+.truck-graphic .fa-truck::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 20px;
+    background: var(--primary-cyan);
+    border-radius: 0 0 10px 10px;
+    z-index: -1;
+}
+
+.relax-graphic .fa-bed {
+    font-size: 5rem;
+    color: white;
+}
+
+.relax-graphic .fa-bed::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70%;
+    height: 15px;
+    background: var(--primary-cyan);
+    border-radius: 0 0 8px 8px;
+    z-index: -1;
+}
+
+.relax-graphic .relax-person {
+    position: absolute;
+    font-size: 2.5rem;
+    color: var(--primary-cyan);
+    top: 30px;
+    right: 35px;
+}
+
+.step-card:hover .icon-graphic i {
+    transform: scale(1.1);
+}
+
+@keyframes phoneRing {
+    0%, 100% { transform: rotate(0deg); }
+    10%, 30% { transform: rotate(-10deg); }
+    20%, 40% { transform: rotate(10deg); }
+    50% { transform: rotate(0deg); }
+}
+
+@keyframes truckMove {
+    0%, 100% { transform: translateX(0px); }
+    50% { transform: translateX(10px); }
+}
+
+@keyframes speedLines {
+    0%, 100% { opacity: 0.3; transform: translateX(0px); }
+    50% { opacity: 0.8; transform: translateX(-5px); }
+}
+
+@keyframes relaxBounce {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+}
+
+.step-number {
+    position: absolute;
+    top: 0;
+    right: 10px;
+    width: 50px;
+    height: 50px;
+    background: var(--primary-cyan);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: white;
+    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.4);
+}
+
+.step-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+}
+
+.step-description {
+    font-family: 'Outfit', sans-serif;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.7;
+    font-size: 0.95rem;
+}
+
 /* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 1024px) {
     .why-layout {
@@ -781,6 +1060,15 @@
 @media (max-width: 768px) {
     .home-container {
         margin: -1rem -15px 0 -15px;
+    }
+    
+    .steps-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+    
+    .tutorial-title {
+        font-size: 2.5rem;
     }
     
     .hero-section {
