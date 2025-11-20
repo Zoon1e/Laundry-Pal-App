@@ -36,6 +36,11 @@
         align-items: center !important;
     }
     
+    .navbar-nav .nav-link:active {
+        transform: scale(0.95);
+        opacity: 0.8;
+    }
+    
     .navbar-nav .nav-link i {
         display: inline-flex;
         align-items: center;
@@ -49,7 +54,7 @@
     }
     
     .navbar-brand {
-        font-family: 'Space Grotesk', sans-serif !important;
+        font-family: 'Merienda', cursive !important;
         font-weight: 700 !important;
         letter-spacing: -0.02em;
         color: white !important;
@@ -327,7 +332,10 @@
       <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="/">
           <img src="{% static 'images/logo.png' %}" alt="Laundry Pal Logo" height="80" class="me-2">
-          <span class="fw-bold text-white">Laundry Pal</span>
+          <div class="d-flex flex-column">
+            <span class="fw-bold text-white">Laundry Pal</span>
+            <small class="text-white" style="font-size: 0.7rem; margin-top: -5px; opacity: 0.9;">est. 2025</small>
+          </div>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample" aria-controls="navbarsExample" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>

@@ -453,7 +453,6 @@ const additionalStyles = `
         width: 100%;
         height: 100%;
         background: rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(5px);
     }
     
     .modal-content {
