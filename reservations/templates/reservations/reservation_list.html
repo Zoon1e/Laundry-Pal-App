@@ -9,70 +9,89 @@
 
 {% block content %}
 <div class="reservations-container">
-    <!-- Header Section -->
-    <div class="reservations-header">
-        <div class="header-content">
-            <div class="header-text">
-                <div class="header-icon">
-                    <i class="fas fa-calendar-check"></i>
-                </div>
-                <div>
-                    <h1 class="reservations-title">My Reservations</h1>
-                    <p class="reservations-subtitle">Manage your laundry pickup and delivery schedule</p>
-                </div>
-            </div>
-            <a href="{% url 'reservations:reservation_create' %}" class="btn-new-reservation">
-                <i class="fas fa-plus"></i>
-                <span>New Reservation</span>
-            </a>
+    <!-- Hero Header Section -->
+    <section class="reservations-hero">
+        <!-- Floating Laundry Icons -->
+        <div class="floating-reservations-icons">
+            <i class="fas fa-calendar-check floating-icon-res icon-res-1"></i>
+            <i class="fas fa-clock floating-icon-res icon-res-2"></i>
+            <i class="fas fa-tshirt floating-icon-res icon-res-3"></i>
+            <i class="fas fa-truck floating-icon-res icon-res-4"></i>
+            <i class="fas fa-check-circle floating-icon-res icon-res-5"></i>
+            <i class="fas fa-calendar-alt floating-icon-res icon-res-6"></i>
+            <i class="fas fa-box floating-icon-res icon-res-7"></i>
+            <i class="fas fa-sparkles floating-icon-res icon-res-8"></i>
         </div>
-    </div>
+        
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fas fa-calendar-check"></i>
+                <span>Reservation Management</span>
+            </div>
+            <h1 class="hero-title">My Reservations</h1>
+            <p class="hero-subtitle">Manage your laundry pickup and delivery schedule with ease</p>
+            <div class="hero-actions">
+                <a href="{% url 'reservations:reservation_create' %}" class="btn-hero-primary">
+                    <i class="fas fa-plus"></i>
+                    <span>New Reservation</span>
+                </a>
+            </div>
+        </div>
+    </section>
 
     <!-- Stats Section -->
-    <div class="stats-section">
-        <div class="stats-grid">
-            <div class="stat-card stat-pending">
-                <div class="stat-icon">
-                    <i class="fas fa-clock"></i>
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="modern-stat-card stat-pending">
+                    <div class="stat-gradient-bar"></div>
+                    <div class="stat-content">
+                        <div class="stat-icon-wrapper">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-number">{{ pending_count }}</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
                 </div>
-                <div class="stat-content">
-                    <div class="stat-number">{{ pending_count }}</div>
-                    <div class="stat-label">Pending</div>
+                <div class="modern-stat-card stat-confirmed">
+                    <div class="stat-gradient-bar"></div>
+                    <div class="stat-content">
+                        <div class="stat-icon-wrapper">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-number">{{ confirmed_count }}</div>
+                        <div class="stat-label">Confirmed</div>
+                    </div>
                 </div>
-            </div>
-            <div class="stat-card stat-confirmed">
-                <div class="stat-icon">
-                    <i class="fas fa-check-circle"></i>
+                <div class="modern-stat-card stat-progress">
+                    <div class="stat-gradient-bar"></div>
+                    <div class="stat-content">
+                        <div class="stat-icon-wrapper">
+                            <i class="fas fa-spinner"></i>
+                        </div>
+                        <div class="stat-number">{{ in_progress_count }}</div>
+                        <div class="stat-label">In Progress</div>
+                    </div>
                 </div>
-                <div class="stat-content">
-                    <div class="stat-number">{{ confirmed_count }}</div>
-                    <div class="stat-label">Confirmed</div>
-                </div>
-            </div>
-            <div class="stat-card stat-progress">
-                <div class="stat-icon">
-                    <i class="fas fa-spinner"></i>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-number">{{ in_progress_count }}</div>
-                    <div class="stat-label">In Progress</div>
-                </div>
-            </div>
-            <div class="stat-card stat-completed">
-                <div class="stat-icon">
-                    <i class="fas fa-check-double"></i>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-number">{{ completed_count }}</div>
-                    <div class="stat-label">Completed</div>
+                <div class="modern-stat-card stat-completed">
+                    <div class="stat-gradient-bar"></div>
+                    <div class="stat-content">
+                        <div class="stat-icon-wrapper">
+                            <i class="fas fa-check-double"></i>
+                        </div>
+                        <div class="stat-number">{{ completed_count }}</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
     <!-- Reservations List -->
     {% if reservations %}
-        <div class="reservations-grid">
+    <section class="reservations-list-section">
+        <div class="container">
+            <div class="reservations-grid">
             {% for reservation in reservations %}
                 <div class="reservation-card">
                     <div class="reservation-header">
@@ -177,7 +196,9 @@
                     </div>
                 </div>
             {% endfor %}
+            </div>
         </div>
+    </section>
 
         <!-- Pagination -->
         {% if is_paginated %}
@@ -212,17 +233,21 @@
 
     {% else %}
         <!-- Empty State -->
-        <div class="empty-state">
-            <div class="empty-icon">
-                <i class="fas fa-calendar-plus"></i>
+        <section class="empty-state-section">
+            <div class="container">
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-calendar-plus"></i>
+                    </div>
+                    <h3 class="empty-title">No Reservations Yet</h3>
+                    <p class="empty-subtitle">Schedule your first laundry pickup to get started!</p>
+                    <a href="{% url 'reservations:reservation_create' %}" class="btn-hero-primary">
+                        <i class="fas fa-plus"></i>
+                        <span>Create Your First Reservation</span>
+                    </a>
+                </div>
             </div>
-            <h3 class="empty-title">No Reservations Yet</h3>
-            <p class="empty-subtitle">Schedule your first laundry pickup to get started!</p>
-            <a href="{% url 'reservations:reservation_create' %}" class="btn-new-reservation">
-                <i class="fas fa-plus"></i>
-                <span>Create Your First Reservation</span>
-            </a>
-        </div>
+        </section>
     {% endif %}
 </div>
 {% endblock %}
