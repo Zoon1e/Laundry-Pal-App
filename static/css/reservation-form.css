@@ -23,25 +23,25 @@
 /* Header Section */
 .reservation-header {
     text-align: center;
-    margin-bottom: 2.5rem;
+    margin-bottom: 1rem;
 }
 
 .reservation-header h2 {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 2.5rem;
+    font-size: 1.75rem;
     font-weight: 700;
     background: linear-gradient(135deg, var(--primary-blue), var(--primary-cyan));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
     letter-spacing: -0.02em;
 }
 
 .reservation-header p {
     font-family: 'Outfit', sans-serif;
     color: var(--secondary-gray);
-    font-size: 1.125rem;
+    font-size: 0.9rem;
 }
 
 /* Main Card */
@@ -57,19 +57,19 @@
 .section-header {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
     border-bottom: 2px solid var(--light-bg);
 }
 
 .section-header i {
-    font-size: 1.5rem;
+    font-size: 1.1rem;
 }
 
 .section-header h3 {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 1.25rem;
+    font-size: 1rem;
     font-weight: 600;
     margin: 0;
     color: var(--dark-text);
@@ -96,10 +96,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 1.5rem 1rem;
+    padding: 1rem 0.5rem;
     background: white;
     border: 2px solid #e2e8f0;
-    border-radius: 16px;
+    border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
     text-align: center;
@@ -118,8 +118,8 @@
 }
 
 .service-icon {
-    font-size: 2.5rem;
-    margin-bottom: 0.75rem;
+    font-size: 1.75rem;
+    margin-bottom: 0.4rem;
 }
 
 .service-card input[type="radio"]:checked + .service-label .service-icon {
@@ -129,13 +129,13 @@
 .service-name {
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 700;
-    font-size: 1.125rem;
-    margin-bottom: 0.25rem;
+    font-size: 0.95rem;
+    margin-bottom: 0.2rem;
 }
 
 .service-price {
     font-family: 'Outfit', sans-serif;
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     opacity: 0.9;
 }
 
@@ -160,14 +160,14 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 1.5rem 1rem;
+    padding: 1rem 0.5rem;
     background: white;
     border: 2px solid #e2e8f0;
-    border-radius: 16px;
+    border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
     text-align: center;
-    min-height: 140px;
+    min-height: 110px;
 }
 
 .priority-label:hover {
@@ -182,14 +182,14 @@
 }
 
 .priority-icon {
-    font-size: 2.5rem;
-    margin-bottom: 0.75rem;
+    font-size: 1.75rem;
+    margin-bottom: 0.4rem;
 }
 
 .priority-name {
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 700;
-    font-size: 1rem;
+    font-size: 0.85rem;
     line-height: 1.3;
 }
 
