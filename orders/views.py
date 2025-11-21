@@ -33,6 +33,7 @@ class OrderListView(LoginRequiredMixin, ListView):
 
 class OrderDetailView(LoginRequiredMixin, DetailView):
 	model = Order
+	template_name = 'orders/order_detail.html'
 
 	def get_queryset(self):
 		# Admin users can see all orders, regular users only see their own

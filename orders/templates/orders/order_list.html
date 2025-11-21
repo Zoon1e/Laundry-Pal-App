@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}My Orders - Laundry Pal{% endblock %}
+{% block title %}My Appointment - Laundry Pal{% endblock %}
 
 {% block extra_css %}
 <link href="{% static 'css/order-list.css' %}?v=1.0.0" rel="stylesheet">
@@ -64,7 +64,7 @@
                 <i class="fas fa-box"></i>
                 <span>Order Management</span>
             </div>
-            <h1 class="hero-title">My Laundry Orders</h1>
+            <h1 class="hero-title">My Laundry Appointment</h1>
             <p class="hero-subtitle">Track your clothes from pickup to fresh delivery</p>
         </div>
     </section>
@@ -79,7 +79,7 @@
                             <span>Filter</span>
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="filterDropdown">
-                            <li><a class="dropdown-item filter-btn" href="#" data-filter="all">All Orders</a></li>
+                            <li><a class="dropdown-item filter-btn" href="#" data-filter="all">All Appointment</a></li>
                             <li><a class="dropdown-item filter-btn" href="#" data-filter="pending">Pending</a></li>
                             <li><a class="dropdown-item filter-btn" href="#" data-filter="washing">In Progress</a></li>
                             <li><a class="dropdown-item filter-btn" href="#" data-filter="ready">Ready</a></li>
@@ -101,7 +101,7 @@
                 </div>
                 <a href="{% url 'orders:create' %}" class="btn-new-order">
                     <i class="fas fa-plus"></i>
-                    <span>New Order</span>
+                    <span>New Appointment</span>
                 </a>
             </div>
         </div>
@@ -387,11 +387,11 @@
             <div class="empty-icon">
                 <i class="fas fa-tshirt"></i>
             </div>
-            <h3 class="empty-title">No Laundry Orders Yet</h3>
-            <p class="empty-subtitle">Start your first order and let us take care of your clothes!</p>
+            <h3 class="empty-title">No Laundry Appointment Yet</h3>
+            <p class="empty-subtitle">Start your first appointment and let us take care of your clothes!</p>
             <a href="{% url 'orders:create' %}" class="btn-new-order">
                 <i class="fas fa-plus"></i>
-                <span>Create Your First Order</span>
+                <span>Create Your First Appointment</span>
             </a>
         </div>
     {% endif %}

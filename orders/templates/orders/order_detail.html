@@ -11,6 +11,16 @@
 <div class="order-detail-container">
     <!-- Modern Header Section -->
     <div class="order-detail-header">
+        <!-- Floating Icons -->
+        <div class="floating-home-icons">
+            <i class="fas fa-tshirt floating-icon-home icon-home-1"></i>
+            <i class="fas fa-shopping-basket floating-icon-home icon-home-2"></i>
+            <i class="fas fa-soap floating-icon-home icon-home-3"></i>
+            <i class="fas fa-wind floating-icon-home icon-home-4"></i>
+            <i class="fas fa-receipt floating-icon-home icon-home-5"></i>
+            <i class="fas fa-box floating-icon-home icon-home-6"></i>
+        </div>
+        
         <div class="container">
             <div class="header-content-wrapper">
                 <div class="header-left">
@@ -18,6 +28,10 @@
                         <i class="fas fa-receipt"></i>
                     </div>
                     <div class="order-header-info">
+                        <div class="hero-badge">
+                            <i class="fas fa-box"></i>
+                            <span>Order Details</span>
+                        </div>
                         <h1 class="order-title">Order #{{ order.order_number }}</h1>
                         <p class="order-date-text">
                             <i class="fas fa-calendar-alt me-2"></i>Created on {{ order.created_at|date:"M d, Y g:i A" }}
@@ -27,7 +41,7 @@
                 <div class="header-actions-group">
                     <a href="{% url 'orders:list' %}" class="btn-back">
                         <i class="fas fa-arrow-left"></i>
-                        <span>Back to Orders</span>
+                        <span>Back to Appointment</span>
                     </a>
                     {% if order.status in 'pending,confirmed' %}
                     <a href="{% url 'orders:update' order.pk %}" class="btn-edit">
@@ -256,7 +270,7 @@
                         <small class="text-muted">Address:</small>
                         <div>{{ order.reservation.address }}</div>
                     </div>
-                    <a href="{% url 'reservations:detail' order.reservation.pk %}" class="btn btn-outline-primary btn-sm w-100">
+                    <a href="{% url 'reservations:reservation_detail' order.reservation.pk %}" class="btn btn-outline-primary btn-sm w-100">
                         <i class="fas fa-eye me-2"></i>View Reservation
                     </a>
                 </div>
@@ -311,13 +325,19 @@
 
 <style>
 /* Modern Header Section - Matches Home Interface */
+.order-detail-container {
+    background: #f8fafc;
+    min-height: calc(100vh - 120px);
+}
+
 .order-detail-header {
     background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%);
-    padding: 2.5rem 0;
+    padding: 3rem 0;
     margin: -2rem -15px 2rem -15px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     position: relative;
     overflow: hidden;
+    border-bottom: 5px solid rgba(255, 255, 255, 0.2);
 }
 
 .order-detail-header::before {
@@ -328,9 +348,58 @@
     right: 0;
     bottom: 0;
     background-image: 
-        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 40%),
-        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 40%);
+        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 30%),
+        repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255, 255, 255, 0.03) 10px, rgba(255, 255, 255, 0.03) 20px);
     pointer-events: none;
+}
+
+.floating-home-icons {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.floating-icon-home {
+    position: absolute;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 2.5rem;
+    animation: floatHome 8s ease-in-out infinite;
+}
+
+.icon-home-1 { top: 10%; left: 8%; animation-delay: 0s; }
+.icon-home-2 { top: 20%; right: 12%; animation-delay: 1s; }
+.icon-home-3 { top: 35%; left: 5%; animation-delay: 2s; }
+.icon-home-4 { top: 50%; right: 8%; animation-delay: 3s; }
+.icon-home-5 { bottom: 25%; left: 10%; animation-delay: 4s; }
+.icon-home-6 { bottom: 15%; right: 15%; animation-delay: 5s; }
+
+@keyframes floatHome {
+    0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.3; }
+    25% { transform: translateY(-20px) rotate(8deg); opacity: 0.5; }
+    50% { transform: translateY(-15px) rotate(-5deg); opacity: 0.4; }
+    75% { transform: translateY(-25px) rotate(10deg); opacity: 0.6; }
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 0.5rem 1rem;
+    border-radius: 1.5rem;
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .header-content-wrapper {
@@ -368,7 +437,7 @@
 }
 
 .order-title {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Merienda', cursive !important;
     font-size: 2rem;
     font-weight: 700;
     color: white !important;
@@ -376,10 +445,6 @@
     letter-spacing: -0.02em;
     background: none !important;
     -webkit-text-fill-color: white !important;
-}
-
-.order-title::after {
-    display: none;
 }
 
 .order-date-text {
@@ -420,14 +485,15 @@
 }
 
 .btn-edit {
-    background: rgba(255, 255, 255, 0.9);
+    background: white;
     color: #2563eb;
     border-color: white;
 }
 
 .btn-edit:hover {
-    background: white;
+    background: rgba(255, 255, 255, 0.95);
     color: #1e40af;
+    transform: translateY(-2px);
 }
 
 @media (max-width: 768px) {
@@ -535,14 +601,16 @@
 
 .progress-timeline {
     position: relative;
-    padding-left: 2rem;
+    padding-left: 3rem;
+    margin-bottom: 2rem;
 }
 
 .timeline-item {
     position: relative;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
     opacity: 0.5;
     transition: all 0.3s ease;
+    padding-right: 1rem;
 }
 
 .timeline-item.active,
@@ -553,10 +621,10 @@
 .timeline-item::before {
     content: '';
     position: absolute;
-    left: -2rem;
+    left: -2.5rem;
     top: 1.5rem;
     width: 2px;
-    height: 100%;
+    height: calc(100% + 0.5rem);
     background-color: #dee2e6;
     z-index: 1;
 }
@@ -567,7 +635,7 @@
 
 .timeline-marker {
     position: absolute;
-    left: -2.5rem;
+    left: -3rem;
     top: 0;
     width: 2rem;
     height: 2rem;
@@ -627,17 +695,22 @@
 
 @media (max-width: 768px) {
     .progress-timeline {
-        padding-left: 1.5rem;
+        padding-left: 2.5rem;
     }
     
     .timeline-marker {
-        left: -2rem;
+        left: -2.5rem;
         width: 1.5rem;
         height: 1.5rem;
+        font-size: 0.75rem;
     }
     
     .timeline-item::before {
-        left: -1.75rem;
+        left: -2.25rem;
+    }
+    
+    .timeline-item {
+        margin-bottom: 2rem;
     }
 }
 </style>
