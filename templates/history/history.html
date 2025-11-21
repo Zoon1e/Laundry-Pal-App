@@ -336,15 +336,74 @@
     margin-bottom: 2rem;
 }
 
+.stats-section .card {
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.stats-section .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.stats-section .card-body {
+    padding: 0.75rem 0.5rem;
+}
+
+.stats-section .card-body i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.stats-section .card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.stats-section .card-text {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
 
 .history-card {
     transition: all 0.3s ease;
     border-left: 4px solid transparent;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .history-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.text-center.py-5 i.fa-3x {
+    font-size: 2rem !important;
+    margin-bottom: 0.75rem !important;
+}
+
+.text-center.py-5 h4 {
+    font-family: 'Merienda', cursive !important;
+    font-size: 1.125rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.text-center.py-5 p {
+    font-size: 0.875rem !important;
+    margin-bottom: 0.75rem !important;
+}
+
+.text-center.py-5 .btn {
+    padding: 0.625rem 1.25rem !important;
+    font-size: 0.875rem !important;
+    border-radius: 0.5rem !important;
 }
 
 .timeline-item[data-type="order"] .history-card {
