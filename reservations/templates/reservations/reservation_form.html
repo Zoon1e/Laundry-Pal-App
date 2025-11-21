@@ -15,14 +15,33 @@
 
 {% block content %}
 <div class="reservation-container">
+    <!-- Hero Header Section -->
+    <section class="reservations-hero">
+        <!-- Floating Laundry Icons -->
+        <div class="floating-reservations-icons">
+            <i class="fas fa-calendar-check floating-icon-res icon-res-1"></i>
+            <i class="fas fa-clock floating-icon-res icon-res-2"></i>
+            <i class="fas fa-tshirt floating-icon-res icon-res-3"></i>
+            <i class="fas fa-truck floating-icon-res icon-res-4"></i>
+            <i class="fas fa-check-circle floating-icon-res icon-res-5"></i>
+            <i class="fas fa-calendar-alt floating-icon-res icon-res-6"></i>
+            <i class="fas fa-box floating-icon-res icon-res-7"></i>
+            <i class="fas fa-sparkles floating-icon-res icon-res-8"></i>
+        </div>
+        
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fas fa-calendar-plus"></i>
+                <span>{% if object %}Edit Reservation{% else %}New Reservation{% endif %}</span>
+            </div>
+            <h1 class="hero-title">{% if object %}Edit Reservation{% else %}Schedule Pickup{% endif %}</h1>
+            <p class="hero-subtitle">{% if object %}Update your reservation details{% else %}Book your laundry pickup and delivery{% endif %}</p>
+        </div>
+    </section>
+
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-10">
-                <!-- Header -->
-                <div class="reservation-header">
-                    <h2>{% if object %}Edit Reservation{% else %}Schedule Pickup{% endif %}</h2>
-                    <p>{% if object %}Update your reservation details{% else %}Book your laundry pickup and delivery{% endif %}</p>
-                </div>
 
                 <!-- Form Card -->
                 <div class="reservation-card">
@@ -35,9 +54,12 @@
                             <i class="fas fa-cog" style="color: #2563eb;"></i>
                             <h3>Service Type</h3>
                         </div>
+                        <div style="display: none;">
+                            {{ form.service_type }}
+                        </div>
                         <div class="service-grid">
                             <div class="service-card">
-                                <input type="radio" name="service_type" id="wash_fold" value="1">
+                                <input type="radio" name="service_type_display" id="wash_fold" value="1" data-target="service_type">
                                 <label class="service-label" for="wash_fold">
                                     <i class="fas fa-tshirt service-icon" style="color: #2563eb;"></i>
                                     <div class="service-name">Wash & Fold</div>
@@ -45,7 +67,7 @@
                                 </label>
                             </div>
                             <div class="service-card">
-                                <input type="radio" name="service_type" id="dry_cleaning" value="2">
+                                <input type="radio" name="service_type_display" id="dry_cleaning" value="2" data-target="service_type">
                                 <label class="service-label" for="dry_cleaning">
                                     <i class="fas fa-user-tie service-icon" style="color: #06b6d4;"></i>
                                     <div class="service-name">Dry Cleaning</div>
@@ -53,7 +75,7 @@
                                 </label>
                             </div>
                             <div class="service-card">
-                                <input type="radio" name="service_type" id="premium_care" value="3">
+                                <input type="radio" name="service_type_display" id="premium_care" value="3" data-target="service_type">
                                 <label class="service-label" for="premium_care">
                                     <i class="fas fa-crown service-icon" style="color: #fbbf24;"></i>
                                     <div class="service-name">Premium Care</div>
@@ -67,23 +89,26 @@
                             <i class="fas fa-exclamation-circle" style="color: #fbbf24;"></i>
                             <h3>Priority Level</h3>
                         </div>
+                        <div style="display: none;">
+                            {{ form.priority }}
+                        </div>
                         <div class="priority-grid">
                             <div class="priority-card priority-standard">
-                                <input type="radio" name="priority" id="standard" value="standard" checked>
+                                <input type="radio" name="priority_display" id="standard" value="standard" data-target="priority" checked>
                                 <label class="priority-label" for="standard">
                                     <i class="fas fa-clock priority-icon"></i>
                                     <div class="priority-name">STANDARD<br>(3-5 DAYS)</div>
                                 </label>
                             </div>
                             <div class="priority-card priority-express">
-                                <input type="radio" name="priority" id="express" value="express">
+                                <input type="radio" name="priority_display" id="express" value="express" data-target="priority">
                                 <label class="priority-label" for="express">
                                     <i class="fas fa-shipping-fast priority-icon"></i>
                                     <div class="priority-name">EXPRESS (24H)<br>+₱500</div>
                                 </label>
                             </div>
                             <div class="priority-card priority-rush">
-                                <input type="radio" name="priority" id="rush" value="rush">
+                                <input type="radio" name="priority_display" id="rush" value="rush" data-target="priority">
                                 <label class="priority-label" for="rush">
                                     <i class="fas fa-bolt priority-icon"></i>
                                     <div class="priority-name">RUSH (SAME DAY)<br>+₱1,250</div>
@@ -139,15 +164,10 @@
                         </div>
 
                         <div class="form-group" style="margin-bottom: 1.5rem;">
-                            <label for="phone_number" class="form-label">
+                            <label for="{{ form.phone_number.id_for_label }}" class="form-label">
                                 <i class="fas fa-phone" style="color: #06b6d4;"></i>Phone Number
                             </label>
-                            <input type="tel" 
-                                   class="form-control" 
-                                   id="phone_number" 
-                                   name="phone_number" 
-                                   placeholder="(555) 123-4567"
-                                   value="{{ form.phone_number.value|default:'' }}">
+                            {{ form.phone_number }}
                         </div>
 
                         <div class="form-group" style="margin-bottom: 2rem;">
@@ -208,8 +228,42 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Sync service type display with actual form field
+    const serviceTypeInputs = document.querySelectorAll('input[name="service_type_display"]');
+    const serviceTypeField = document.getElementById('{{ form.service_type.id_for_label }}');
+    
+    serviceTypeInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            if (serviceTypeField) {
+                serviceTypeField.value = this.value;
+            }
+        });
+        
+        // Set initial value if form has data
+        if (serviceTypeField && serviceTypeField.value == input.value) {
+            input.checked = true;
+        }
+    });
+    
+    // Sync priority display with actual form field
+    const priorityInputs = document.querySelectorAll('input[name="priority_display"]');
+    const priorityField = document.getElementById('{{ form.priority.id_for_label }}');
+    
+    priorityInputs.forEach(input => {
+        input.addEventListener('change', function() {
+            if (priorityField) {
+                priorityField.value = this.value;
+            }
+            updateDeliveryTime();
+        });
+        
+        // Set initial value if form has data
+        if (priorityField && priorityField.value == input.value) {
+            input.checked = true;
+        }
+    });
+    
     // Auto-calculate delivery time based on priority
-    const priorityInputs = document.querySelectorAll('input[name="priority"]');
     const pickupInput = document.getElementById('{{ form.pickup_datetime.id_for_label }}');
     const deliveryInput = document.getElementById('{{ form.delivery_datetime.id_for_label }}');
     
@@ -217,7 +271,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!pickupInput.value) return;
         
         const pickupDate = new Date(pickupInput.value);
-        const priority = document.querySelector('input[name="priority"]:checked').value;
+        const priorityChecked = document.querySelector('input[name="priority_display"]:checked');
+        const priority = priorityChecked ? priorityChecked.value : 'standard';
         let deliveryDate = new Date(pickupDate);
         
         switch(priority) {
@@ -234,15 +289,22 @@ document.addEventListener('DOMContentLoaded', function() {
         deliveryInput.value = deliveryDate.toISOString().slice(0, 16);
     }
     
-    priorityInputs.forEach(input => {
-        input.addEventListener('change', updateDeliveryTime);
-    });
-    
     pickupInput.addEventListener('change', updateDeliveryTime);
     
     // Form validation
     const form = document.querySelector('.needs-validation');
     form.addEventListener('submit', function(event) {
+        // Ensure hidden fields are synced before submit
+        const serviceTypeChecked = document.querySelector('input[name="service_type_display"]:checked');
+        if (serviceTypeChecked && serviceTypeField) {
+            serviceTypeField.value = serviceTypeChecked.value;
+        }
+        
+        const priorityChecked = document.querySelector('input[name="priority_display"]:checked');
+        if (priorityChecked && priorityField) {
+            priorityField.value = priorityChecked.value;
+        }
+        
         if (!form.checkValidity()) {
             event.preventDefault();
             event.stopPropagation();

@@ -1447,7 +1447,7 @@
 }
 
 .service-title {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: 'Merienda', cursive !important;
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--dark-text);
@@ -1467,7 +1467,7 @@
 .service-btn {
     display: block;
     text-align: center;
-    background: var(--primary-cyan);
+    background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%);
     color: white;
     padding: 1rem 2rem;
     text-decoration: none;
@@ -1476,15 +1476,19 @@
 }
 
 .service-btn:hover {
-    background: var(--primary-blue);
+    background: linear-gradient(135deg, #1d4ed8 0%, #0891b2 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
 }
 
 .service-btn-green {
-    background: var(--primary-cyan);
+    background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%);
 }
 
 .service-btn-green:hover {
-    background: var(--primary-blue);
+    background: linear-gradient(135deg, #1d4ed8 0%, #0891b2 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
 }
 
 @media (max-width: 768px) {

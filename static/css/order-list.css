@@ -46,11 +46,125 @@
 
 /* ===== MAIN CONTAINER ===== */
 .laundry-orders-container {
-    margin: 0;
-    padding: var(--spacing-lg);
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    margin: -2rem -15px 0 -15px;
+    padding: 0;
+    background: var(--laundry-light);
     min-height: calc(100vh - 120px);
     font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ===== HERO SECTION ===== */
+.orders-hero {
+    position: relative;
+    background: #1085dd;
+    padding: 2.5rem 1.5rem;
+    overflow: hidden;
+    min-height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: white;
+    padding: 0.4rem 1rem;
+    border-radius: 1.5rem;
+    color: var(--laundry-primary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.hero-title {
+    font-family: 'Merienda', cursive !important;
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.4rem;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.hero-subtitle {
+    font-family: 'Space Grotesk', sans-serif !important;
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0;
+    line-height: 1.6;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Floating Icons */
+.floating-orders-icons {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.floating-icon-ord {
+    position: absolute;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 3rem;
+    animation: floatOrd 8s ease-in-out infinite;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.6), 0 0 30px rgba(255, 255, 255, 0.4);
+}
+
+.icon-ord-1 { top: 10%; left: 8%; animation-delay: 0s; font-size: 3.5rem; }
+.icon-ord-2 { top: 20%; right: 12%; animation-delay: 1s; font-size: 3rem; }
+.icon-ord-3 { top: 35%; left: 5%; animation-delay: 2s; font-size: 2.8rem; }
+.icon-ord-4 { top: 50%; right: 8%; animation-delay: 3s; font-size: 3.2rem; }
+.icon-ord-5 { bottom: 25%; left: 10%; animation-delay: 4s; font-size: 3rem; }
+.icon-ord-6 { bottom: 15%; right: 15%; animation-delay: 5s; font-size: 2.9rem; }
+.icon-ord-7 { top: 65%; left: 15%; animation-delay: 6s; font-size: 3.3rem; }
+.icon-ord-8 { top: 40%; right: 20%; animation-delay: 7s; font-size: 2.7rem; }
+
+@keyframes floatOrd {
+    0%, 100% { 
+        transform: translateY(0px) rotate(0deg);
+        opacity: 0.3;
+    }
+    25% { 
+        transform: translateY(-20px) rotate(8deg);
+        opacity: 0.5;
+    }
+    50% { 
+        transform: translateY(-15px) rotate(-5deg);
+        opacity: 0.4;
+    }
+    75% { 
+        transform: translateY(-25px) rotate(10deg);
+        opacity: 0.6;
+    }
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+}
+
+.header-actions-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 2rem;
 }
 
 /* Override base template styles */
@@ -833,4 +947,20 @@ body.bg-light {
 .pagination-btn:focus {
     outline: 2px solid var(--laundry-primary);
     outline-offset: 2px;
+}
+
+/* ===== MODAL FIX ===== */
+.modal {
+    z-index: 9999 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.modal-dialog {
+    margin: 0 !important;
+}
+
+.modal-backdrop {
+    z-index: 9998 !important;
 }

@@ -45,9 +45,9 @@
 .reservations-hero {
     position: relative;
     background: #1085dd;
-    padding: 3rem 1.5rem;
+    padding: 2.5rem 1.5rem;
     overflow: hidden;
-    min-height: 320px;
+    min-height: 260px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -77,10 +77,10 @@
 
 .hero-title {
     font-family: 'Merienda', cursive !important;
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 700;
     color: white;
-    margin-bottom: var(--spacing-sm);
+    margin-bottom: 0.4rem;
     line-height: 1.2;
     letter-spacing: -0.03em;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
@@ -88,10 +88,10 @@
 
 .hero-subtitle {
     font-family: 'Space Grotesk', sans-serif !important;
-    font-size: 1.125rem;
+    font-size: 1rem;
     font-weight: 700;
     color: white;
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: 1rem;
     line-height: 1.6;
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
 }
@@ -225,19 +225,19 @@
 }
 
 .stat-content {
-    padding: 2rem 1.5rem;
+    padding: 1.5rem 1rem;
     text-align: center;
 }
 
 .stat-icon-wrapper {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto 1rem;
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 0.75rem;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.75rem;
+    font-size: 1.5rem;
 }
 
 .stat-pending .stat-icon-wrapper {
@@ -262,17 +262,17 @@
 
 .stat-number {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 700;
     color: var(--dark-text);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
     line-height: 1;
     letter-spacing: -0.02em;
 }
 
 .stat-label {
     color: var(--light-text);
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -521,45 +521,45 @@
 
 /* ===== EMPTY STATE ===== */
 .empty-state-section {
-    padding: 4rem 0;
+    padding: 3rem 0;
     background: var(--light-bg);
 }
 
 .empty-state {
     background: white;
     border-radius: 20px;
-    padding: 4rem 2rem;
+    padding: 3rem 2rem;
     text-align: center;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .empty-icon {
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
     background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(6, 182, 212, 0.1));
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 1.5rem;
+    margin: 0 auto 1.25rem;
     color: var(--primary-blue);
-    font-size: 3rem;
+    font-size: 2.5rem;
 }
 
 .empty-title {
     font-family: 'Merienda', cursive !important;
-    font-size: 2rem;
+    font-size: 1.75rem;
     font-weight: 700;
     color: var(--dark-text);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
     letter-spacing: -0.02em;
 }
 
 .empty-subtitle {
     color: var(--light-text);
-    margin-bottom: 2rem;
-    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
 }
 
 /* ===== CUSTOMER INFO (ADMIN ONLY) ===== */

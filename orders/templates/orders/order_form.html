@@ -208,7 +208,12 @@
 }
 
 /* Style Django form fields to match our design */
-#id_reservation {
+#id_reservation,
+#id_status,
+#id_total_items,
+#id_total_cost,
+#id_estimated_completion,
+#id_special_instructions {
     width: 100%;
     padding: 0.875rem 3rem 0.875rem 1rem;
     border: 2px solid #e2e8f0;
@@ -220,7 +225,19 @@
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
-#id_reservation:focus {
+#id_special_instructions {
+    resize: vertical;
+    min-height: 100px;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+#id_reservation:focus,
+#id_status:focus,
+#id_total_items:focus,
+#id_total_cost:focus,
+#id_estimated_completion:focus,
+#id_special_instructions:focus {
     outline: none;
     border-color: #2563eb;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
@@ -296,42 +313,28 @@
                                         <div class="field-help">Connect to existing reservation for seamless tracking</div>
                                     </div>
 
-                                    <!-- Order Status -->
+                                    <!-- Order Status (only show when editing) -->
+                                    {% if object %}
                                     <div class="form-field">
-                                        <label class="field-label">
+                                        <label for="{{ form.status.id_for_label }}" class="field-label">
                                             <i class="fas fa-info-circle"></i>
                                             <span>Order Status</span>
                                         </label>
                                         <div class="field-wrapper">
-                                            <select class="modern-select" name="status">
-                                                <option value="pending" selected>Pending</option>
-                                                <option value="confirmed">Confirmed</option>
-                                                <option value="picked_up">Picked Up</option>
-                                                <option value="washing">Washing</option>
-                                                <option value="drying">Drying</option>
-                                                <option value="folding">Folding</option>
-                                                <option value="ready">Ready for Delivery</option>
-                                                <option value="out_for_delivery">Out for Delivery</option>
-                                                <option value="delivered">Delivered</option>
-                                            </select>
+                                            {{ form.status }}
                                             <i class="fas fa-chevron-down field-icon"></i>
                                         </div>
                                     </div>
+                                    {% endif %}
 
                                     <!-- Total Items -->
                                     <div class="form-field">
-                                        <label class="field-label">
+                                        <label for="{{ form.total_items.id_for_label }}" class="field-label">
                                             <i class="fas fa-hashtag"></i>
                                             <span>Total Items</span>
                                         </label>
                                         <div class="field-wrapper">
-                                            <input type="number" 
-                                                   class="modern-input" 
-                                                   name="total_items"
-                                                   value="1"
-                                                   min="1"
-                                                   placeholder="Enter number of items"
-                                                   required>
+                                            {{ form.total_items }}
                                             <i class="fas fa-hashtag field-icon"></i>
                                         </div>
                                         <div class="field-help">How many items are you sending?</div>
@@ -339,19 +342,12 @@
 
                                     <!-- Total Cost -->
                                     <div class="form-field">
-                                        <label class="field-label">
+                                        <label for="{{ form.total_cost.id_for_label }}" class="field-label">
                                             <i class="fas fa-peso-sign"></i>
                                             <span>Total Cost</span>
                                         </label>
                                         <div class="field-wrapper">
-                                            <input type="number" 
-                                                   class="modern-input" 
-                                                   name="total_cost"
-                                                   value="0.00"
-                                                   step="0.01"
-                                                   min="0"
-                                                   placeholder="0.00"
-                                                   required>
+                                            {{ form.total_cost }}
                                             <i class="fas fa-peso-sign field-icon"></i>
                                         </div>
                                         <div class="field-help">Estimated cost (auto-calculated)</div>
@@ -359,14 +355,12 @@
 
                                     <!-- Estimated Completion -->
                                     <div class="form-field">
-                                        <label class="field-label">
+                                        <label for="{{ form.estimated_completion.id_for_label }}" class="field-label">
                                             <i class="fas fa-clock"></i>
                                             <span>Estimated Completion</span>
                                         </label>
                                         <div class="field-wrapper">
-                                            <input type="datetime-local" 
-                                                   class="modern-input" 
-                                                   name="estimated_completion">
+                                            {{ form.estimated_completion }}
                                             <i class="fas fa-calendar-alt field-icon"></i>
                                         </div>
                                         <div class="field-help">Expected completion date and time</div>
@@ -374,16 +368,13 @@
 
                                     <!-- Special Instructions -->
                                     <div class="form-field full-width">
-                                        <label class="field-label">
+                                        <label for="{{ form.special_instructions.id_for_label }}" class="field-label">
                                             <i class="fas fa-sticky-note"></i>
                                             <span>Special Instructions</span>
                                             <span class="optional-badge">Optional</span>
                                         </label>
                                         <div class="field-wrapper">
-                                            <textarea class="modern-textarea" 
-                                                      name="special_instructions"
-                                                      rows="4" 
-                                                      placeholder="Any special care instructions, stain removal notes, or preferences..."></textarea>
+                                            {{ form.special_instructions }}
                                             <i class="fas fa-sticky-note field-icon"></i>
                                         </div>
                                         <div class="field-help">Help us provide the best care for your items</div>
@@ -481,7 +472,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Auto-calculate estimated completion based on current date
-    const estimatedField = document.querySelector('input[name="estimated_completion"]');
+    const estimatedField = document.getElementById('id_estimated_completion');
     if (estimatedField && !estimatedField.value) {
         const now = new Date();
         now.setDate(now.getDate() + 3); // Default to 3 days from now
@@ -489,8 +480,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Dynamic cost calculation based on items
-    const itemsField = document.querySelector('input[name="total_items"]');
-    const costField = document.querySelector('input[name="total_cost"]');
+    const itemsField = document.getElementById('id_total_items');
+    const costField = document.getElementById('id_total_cost');
     
     if (itemsField && costField) {
         itemsField.addEventListener('input', function() {

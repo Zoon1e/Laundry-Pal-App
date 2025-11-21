@@ -44,17 +44,18 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
 
 class OrderCreateView(LoginRequiredMixin, CreateView):
 	model = Order
-	fields = ['reservation']
+	fields = ['reservation', 'total_items', 'total_cost', 'special_instructions', 'estimated_completion']
 	success_url = reverse_lazy('orders:list')
 
 	def form_valid(self, form):
 		form.instance.user = self.request.user
+		form.instance.status = 'pending'
 		return super().form_valid(form)
 
 
 class OrderUpdateView(LoginRequiredMixin, UpdateView):
 	model = Order
-	fields = ['status']
+	fields = ['status', 'total_items', 'total_cost', 'special_instructions', 'estimated_completion']
 	success_url = reverse_lazy('orders:list')
 
 	def get_queryset(self):

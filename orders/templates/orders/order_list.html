@@ -45,18 +45,32 @@
 
 {% block content %}
 <div class="laundry-orders-container">
-    <!-- Header Section -->
-    <div class="orders-header">
-        <div class="header-content">
-            <div class="header-text">
-                <div class="header-icon">
-                    <i class="fas fa-tshirt"></i>
-                </div>
-                <div>
-                    <h1 class="orders-title">My Laundry Orders</h1>
-                    <p class="orders-subtitle">Track your clothes from pickup to fresh delivery</p>
-                </div>
+    <!-- Hero Header Section -->
+    <section class="orders-hero">
+        <!-- Floating Laundry Icons -->
+        <div class="floating-orders-icons">
+            <i class="fas fa-tshirt floating-icon-ord icon-ord-1"></i>
+            <i class="fas fa-soap floating-icon-ord icon-ord-2"></i>
+            <i class="fas fa-wind floating-icon-ord icon-ord-3"></i>
+            <i class="fas fa-truck floating-icon-ord icon-ord-4"></i>
+            <i class="fas fa-check-circle floating-icon-ord icon-ord-5"></i>
+            <i class="fas fa-box floating-icon-ord icon-ord-6"></i>
+            <i class="fas fa-shopping-basket floating-icon-ord icon-ord-7"></i>
+            <i class="fas fa-sparkles floating-icon-ord icon-ord-8"></i>
+        </div>
+        
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fas fa-box"></i>
+                <span>Order Management</span>
             </div>
+            <h1 class="hero-title">My Laundry Orders</h1>
+            <p class="hero-subtitle">Track your clothes from pickup to fresh delivery</p>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="header-actions-wrapper">
             <div class="header-actions">
                 <div class="filter-sort-group">
                     <div class="dropdown">
