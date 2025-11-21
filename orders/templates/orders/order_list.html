@@ -383,16 +383,18 @@
 
     {% else %}
         <!-- Empty State -->
-        <div class="empty-state">
-            <div class="empty-icon">
-                <i class="fas fa-tshirt"></i>
+        <div class="empty-state-section">
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-tshirt"></i>
+                </div>
+                <h3 class="empty-title">No Laundry Appointment Yet</h3>
+                <p class="empty-subtitle">Start your first appointment and let us take care of your clothes!</p>
+                <a href="{% url 'orders:create' %}" class="btn-new-order">
+                    <i class="fas fa-plus"></i>
+                    <span>Create Your First Appointment</span>
+                </a>
             </div>
-            <h3 class="empty-title">No Laundry Appointment Yet</h3>
-            <p class="empty-subtitle">Start your first appointment and let us take care of your clothes!</p>
-            <a href="{% url 'orders:create' %}" class="btn-new-order">
-                <i class="fas fa-plus"></i>
-                <span>Create Your First Appointment</span>
-            </a>
         </div>
     {% endif %}
 </div>
